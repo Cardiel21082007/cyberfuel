@@ -1,0 +1,13 @@
+streamlit
+pandas
+plotly
+scikit-learn
+folium
+streamlit-folium
+twilio
+stripe
+flask
+openpyxl
+xlsxwriter
+python-dotenv
+supabase

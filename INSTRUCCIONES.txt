@@ -1,0 +1,26 @@
+═══════════════════════════════════════════════════
+  CYBERFUEL ULTRA AI - MANUAL DE INSTALACION
+═══════════════════════════════════════════════════
+
+PASO 1: INSTALAR PYTHON
+  - Descarga Python 3.9 o superior de https://www.python.org/downloads/
+  - Al instalar, MARCA LA CASILLA que dice "Add Python to PATH" (¡Muy importante!)
+  - Reinicia tu computadora.
+
+PASO 2: CONFIGURAR LLAVES (Opcional)
+  - Abre el archivo ".env" con el Bloc de Notas.
+  - Si quieres recibir alertas por correo o WhatsApp, llena los datos.
+  - Si no sabes qué son, déjalos vacíos. La app funcionará sin ellos.
+
+PASO 3: ENCENDER LA APP
+  - Haz doble clic en "INICIAR_CYBERFUEL.bat"
+  - Espera 1 minuto a que instale todo (solo la primera vez).
+  - Se abrirá tu navegador automáticamente en http://localhost:8501
+
+CREDENCIALES POR DEFECTO:
+  Usuario: admin
+  Contraseña: admin123
+  (¡Cámbialas inmediatamente en el menú lateral!)
+
+PASO 4: PARA APAGAR LA APP
+  - Ve a la ventana negra (Terminal) y presiona Ctrl + C.

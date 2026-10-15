@@ -1,0 +1,17 @@
+{
+  "name": "CyberFuel AI",
+  "short_name": "CyberFuel",
+  "description": "Sistema de Control Inteligente de Combustible",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0e1117",
+  "theme_color": "#00ff88",
+  "icons": [
+    {
+      "src": "https://emojicdn.elk.sh/⛽?style=apple",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
