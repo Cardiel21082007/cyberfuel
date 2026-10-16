@@ -1357,9 +1357,6 @@ def ensure_default_notifications(tenant_id=1):
     conn.commit()
     conn.close()
 
-
-
-
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #  SISTEMA DE LLAVES DE SUSCRIPCIÓN
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1454,3 +1451,5 @@ def deactivate_subscription_key(key_code):
         return True
     except:
         return False
+    conn.commit()
+    conn.close()
