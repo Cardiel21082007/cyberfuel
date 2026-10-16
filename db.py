@@ -1354,8 +1354,7 @@ def ensure_default_notifications(tenant_id=1):
         cur.execute("SELECT id FROM notification_settings WHERE tipo=? AND tenant_id=?", (tipo, tenant_id))
         if not cur.fetchone():
             cur.execute("INSERT INTO notification_settings (tipo, activo, email, tenant_id) VALUES (?,?,?,?)", (tipo, 1, '', tenant_id))
-    conn.commit()
-    conn.close()
+
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #  SISTEMA DE LLAVES DE SUSCRIPCIÓN
