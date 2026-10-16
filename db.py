@@ -1396,9 +1396,7 @@ def save_notification_setting(tipo, activo, email, tenant_id=1):
         else:
             cur.execute("INSERT INTO notification_settings (tipo, activo, email, tenant_id) VALUES (?,?,?,?)", (tipo, activo, email, tenant_id))
         conn.commit()
-        conn.close()
-
-
+        
 def update_notification_last_sent(tipo, timestamp, tenant_id=1):
     tipo = sanitize_text(tipo, 50)
     tenant_id = int(sanitize_number(tenant_id, 0, 9999))
@@ -1414,4 +1412,20 @@ def update_notification_last_sent(tipo, timestamp, tenant_id=1):
         cur = conn.cursor()
         cur.execute("UPDATE notification_settings SET ultimo_envio=? WHERE tipo=? AND tenant_id=?", (timestamp, tipo, tenant_id))
         conn.commit()
+        def update_notification_last_sent(tipo, timestamp, tenant_id=1):
+    tipo = sanitize_text(tipo, 50)
+    tenant_id = int(sanitize_number(tenant_id, 0, 9999))
+    if _use_supabase:
+        try:
+            existing = _sb.table("notification_settings").select("id").eq("tipo", tipo).eq("tenant_id", tenant_id).execute()
+            if existing.data:
+                _sb.table("notification_settings").update({"ultimo_envio": timestamp}).eq("id", existing.data[0]["id"]).execute()
+        except:
+            pass
+    else:
+        conn = sqlite3.connect(DB_NAME)
+        cur = conn.cursor()
+        cur.execute("UPDATE notification_settings SET ultimo_envio=? WHERE tipo=? AND tenant_id=?", (timestamp, tipo, tenant_id))
+        conn.commit()
         conn.close()
+       
