@@ -1354,10 +1354,68 @@ def ensure_default_notifications(tenant_id=1):
         cur.execute("SELECT id FROM notification_settings WHERE tipo=? AND tenant_id=?", (tipo, tenant_id))
         if not cur.fetchone():
             cur.execute("INSERT INTO notification_settings (tipo, activo, email, tenant_id) VALUES (?,?,?,?)", (tipo, 1, '', tenant_id))
-def ensure_default_notifications(tenant_id=1):
-    ...
     conn.commit()
     conn.close()
+
+
+def get_notification_settings(tenant_id=1):
+    tenant_id = int(sanitize_number(tenant_id, 0, 9999))
+    if _use_supabase:
+        try:
+            r = _sb.table("notification_settings").select("*").eq("tenant_id", tenant_id).execute()
+            return pd.DataFrame(r.data) if r.data else pd.DataFrame()
+        except:
+            return pd.DataFrame()
+    conn = sqlite3.connect(DB_NAME)
+    df = pd.read_sql_query("SELECT * FROM notification_settings WHERE tenant_id=?", conn, params=(tenant_id,))
+    conn.close()
+    return df
+
+
+def save_notification_setting(tipo, activo, email, tenant_id=1):
+    tipo = sanitize_text(tipo, 50)
+    email = sanitize_text(email, 200)
+    activo = 1 if activo else 0
+    tenant_id = int(sanitize_number(tenant_id, 0, 9999))
+    if _use_supabase:
+        try:
+            existing = _sb.table("notification_settings").select("id").eq("tipo", tipo).eq("tenant_id", tenant_id).execute()
+            if existing.data:
+                _sb.table("notification_settings").update({"activo": activo, "email": email}).eq("id", existing.data[0]["id"]).execute()
+            else:
+                _sb.table("notification_settings").insert({"tipo": tipo, "activo": activo, "email": email, "tenant_id": tenant_id}).execute()
+        except:
+            pass
+    else:
+        conn = sqlite3.connect(DB_NAME)
+        cur = conn.cursor()
+        cur.execute("SELECT id FROM notification_settings WHERE tipo=? AND tenant_id=?", (tipo, tenant_id))
+        row = cur.fetchone()
+        if row:
+            cur.execute("UPDATE notification_settings SET activo=?, email=? WHERE id=?", (activo, email, row[0]))
+        else:
+            cur.execute("INSERT INTO notification_settings (tipo, activo, email, tenant_id) VALUES (?,?,?,?)", (tipo, activo, email, tenant_id))
+        conn.commit()
+        conn.close()
+
+
+def update_notification_last_sent(tipo, timestamp, tenant_id=1):
+    tipo = sanitize_text(tipo, 50)
+    tenant_id = int(sanitize_number(tenant_id, 0, 9999))
+    if _use_supabase:
+        try:
+            existing = _sb.table("notification_settings").select("id").eq("tipo", tipo).eq("tenant_id", tenant_id).execute()
+            if existing.data:
+                _sb.table("notification_settings").update({"ultimo_envio": timestamp}).eq("id", existing.data[0]["id"]).execute()
+        except:
+            pass
+    else:
+        conn = sqlite3.connect(DB_NAME)
+        cur = conn.cursor()
+        cur.execute("UPDATE notification_settings SET ultimo_envio=? WHERE tipo=? AND tenant_id=?", (timestamp, tipo, tenant_id))
+        conn.commit()
+        conn.close()
+
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #  SISTEMA DE LLAVES DE SUSCRIPCIÓN
@@ -1453,4 +1511,3 @@ def deactivate_subscription_key(key_code):
         return True
     except:
         return False
-
