@@ -604,12 +604,28 @@ def delete_vehiculo(placa, tenant_id=1, username="system"):
 def get_data(tenant_id=None):
     if tenant_id is not None:
         tenant_id = int(sanitize_number(tenant_id, 0, 9999))
+    # Columnas esperadas (para que el DataFrame nunca esté vacío de columnas)
+    expected_cols = [
+        'id', 'fecha', 'vehiculo', 'conductor', 'tipo_combustible',
+        'kilometraje', 'litros', 'custo', 'factura', 'estacion', 'vale',
+        'rendimento', 'custo_por_km', 'alerta_anomalia', 'alerta_mantenimiento',
+        'latitud', 'longitud', 'capturado_por', 'fecha_captura', 'tenant_id'
+    ]
     if _use_supabase:
         q = _sb.table("cargas").select("*").order("fecha", desc=True)
         if tenant_id is not None:
             q = q.eq("tenant_id", tenant_id)
         r = q.execute()
-        return pd.DataFrame(r.data)
+        df = pd.DataFrame(r.data)
+        # Si el DataFrame está vacío, crear uno con todas las columnas esperadas
+        if df.empty:
+            df = pd.DataFrame(columns=expected_cols)
+        else:
+            # Asegurar que todas las columnas esperadas existan
+            for col in expected_cols:
+                if col not in df.columns:
+                    df[col] = None
+        return df
     conn = sqlite3.connect(DB_NAME)
     if tenant_id is not None:
         df = pd.read_sql_query("SELECT * FROM cargas WHERE tenant_id=? ORDER BY fecha DESC", conn, params=(tenant_id,))
