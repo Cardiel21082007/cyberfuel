@@ -37,7 +37,6 @@ def migrate_db():
         ("fecha_ultimo_servicio", "TEXT DEFAULT ''"),
         ("poliza_seguro", "TEXT DEFAULT ''"),
         ("tel_operador", "TEXT DEFAULT ''"),
-        # ━━ NUEVOS CAMPOS DE PAPELES (EL ABOGADO AUTOMÁTICO) ━━
         ("vencimiento_seguro", "TEXT DEFAULT ''"),
         ("vencimiento_verificacion", "TEXT DEFAULT ''"),
         ("vencimiento_tarjeton", "TEXT DEFAULT ''"),
@@ -75,7 +74,50 @@ def migrate_db():
 
 def init_db():
     if _use_supabase:
+        # ━━ CREAR ORGANIZACIÓN POR DEFECTO SI NO EXISTE ━━
+        try:
+            r_org = _sb.table("organizations").select("id").eq("id", 1).execute()
+            if not r_org.data:
+                _sb.table("organizations").insert({
+                    "id": 1,
+                    "nombre": "Organizacion Principal",
+                    "rfc": "",
+                    "direccion": "",
+                    "ciudad": "",
+                    "telefono": "",
+                    "email": "",
+                    "logo_b64": "",
+                    "color_primario": "#00ff88",
+                    "plan": "basic",
+                    "max_users": 5,
+                    "max_vehicles": 50,
+                    "activo": 1,
+                    "fecha_creacion": str(datetime.now()),
+                }).execute()
+                print("[init_db] Organizacion Principal creada en Supabase")
+        except Exception as e:
+            print("Error creating default org: " + str(e))
+
+        # ━━ CREAR USUARIO ADMIN POR DEFECTO SI NO EXISTE ━━
+        try:
+            r = _sb.table("users_db").select("username").eq("username", "admin").execute()
+            if not r.data:
+                admin_hash = hash_password("admin123")
+                now_str = str(datetime.now())
+                exp_str = str(datetime.now() + timedelta(days=3650))
+                _sb.table("users_db").insert({
+                    "username": "admin",
+                    "password_hash": admin_hash,
+                    "role": "superadmin",
+                    "reg_date": now_str,
+                    "expiration_date": exp_str,
+                    "tenant_id": 0,
+                }).execute()
+                print("[init_db] Usuario admin creado en Supabase")
+        except Exception as e:
+            print("Error creating admin: " + str(e))
         return
+
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
     c.execute(
@@ -189,7 +231,6 @@ def get_all_organizations():
         r = _sb.table("organizations").select("*").order("id").execute()
         return pd.DataFrame(r.data)
     conn = sqlite3.connect(DB_NAME)
-    # FIX: Se consultaba la tabla equivocada (precios_comb)
     df = pd.read_sql_query("SELECT * FROM organizations ORDER BY id", conn)
     conn.close()
     return df
@@ -470,10 +511,8 @@ def insert_carga(datos, username="system", tenant_id=1):
     if len(d) > 15:
         d[15] = sanitize_number(d[15], -180, 180)
 
-    # ━━━ 🧠 BOMBA 1: INTELIGENCIA ARTIFICIAL EN VIVO ━━━
     try:
         from ml import detectar_anomalia_ai
-        # Obtener historial reciente del vehículo específico
         if not _use_supabase:
             conn_ai = sqlite3.connect(DB_NAME)
             hist_df = pd.read_sql_query("SELECT litros, custo, kilometraje, fecha FROM cargas WHERE vehiculo=? AND tenant_id=? ORDER BY id DESC LIMIT 20", conn_ai, params=(d[1], tenant_id))
@@ -482,15 +521,14 @@ def insert_carga(datos, username="system", tenant_id=1):
             r_ai = _sb.table("cargas").select("litros,custo,kilometraje,fecha").eq("vehiculo", d[1]).eq("tenant_id", tenant_id).order("id", desc=True).limit(20).execute()
             hist_df = pd.DataFrame(r_ai.data)
 
-        if not hist_df.empty and len(hist_df) >= 8: # La IA necesita al menos 8 cargas previas para aprender
+        if not hist_df.empty and len(hist_df) >= 8:
             nueva_carga_dict = {'litros': d[5], 'custo': d[6], 'kilometraje': d[4], 'hora': datetime.now().hour}
             es_anomalia_ai = detectar_anomalia_ai(hist_df, nueva_carga_dict)
             if es_anomalia_ai:
-                d[12] = "ANOMALIA_AI" # 🚨 Alerta especial de la IA
-                print(f"[AI] 🧠 Anomalía AI detectada para vehículo {d[1]}")
+                d[12] = "ANOMALIA_AI"
+                print(f"[AI] Anomalia AI detectada para vehiculo {d[1]}")
     except Exception as e:
-        print(f"[AI] Error checking anomaly: {e}") # Si la IA falla, no rompe la carga
-    # ━━━ FIN BOMBA 1 ━━━
+        print(f"[AI] Error checking anomaly: {e}")
 
     if _use_supabase:
         doc = {
@@ -579,6 +617,7 @@ def get_data(tenant_id=None):
         df = pd.read_sql_query("SELECT * FROM cargas ORDER BY fecha DESC", conn)
     conn.close()
     return df
+
 
 def check_duplicate(field, value, tenant_id=1):
     try:
@@ -777,13 +816,10 @@ def update_vehiculo(placa, tenant_id=None, **kwargs):
         else:
             values = values + [placa]
             cur.execute("UPDATE vehiculos SET " + set_clause + " WHERE placa=?", values)
-        # FIX: Faltaba guardar y cerrar la conexión
         conn.commit()
         conn.close()
 
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  ESTACIONES DE SERVICIO
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 def init_estaciones():
     if _use_supabase:
         return
@@ -798,6 +834,7 @@ def init_estaciones():
     )
     conn.commit()
     conn.close()
+
 
 def insert_estacion(nombre, direccion='', marca='', lat=0, lon=0, tenant_id=1):
     nombre = sanitize_text(nombre, 100)
@@ -827,6 +864,7 @@ def insert_estacion(nombre, direccion='', marca='', lat=0, lon=0, tenant_id=1):
     except:
         return None
 
+
 def get_all_estaciones(tenant_id=None):
     if tenant_id is not None:
         tenant_id = int(sanitize_number(tenant_id, 0, 9999))
@@ -844,6 +882,7 @@ def get_all_estaciones(tenant_id=None):
     conn.close()
     return df
 
+
 def delete_estacion(eid, tenant_id=1):
     try:
         eid = int(eid)
@@ -858,6 +897,7 @@ def delete_estacion(eid, tenant_id=1):
         cur.execute("DELETE FROM estaciones WHERE id=? AND tenant_id=?", (eid, tenant_id))
         conn.commit()
         conn.close()
+
 
 def update_estacion(eid, tenant_id=None, **kwargs):
     try:
@@ -893,13 +933,10 @@ def update_estacion(eid, tenant_id=None, **kwargs):
         else:
             values = values + [eid]
             cur.execute("UPDATE estaciones SET " + set_clause + " WHERE id=?", values)
-        # FIX: Faltaba guardar y cerrar
         conn.commit()
         conn.close()
 
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  CONDUCTORES
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 def init_conductores():
     if _use_supabase:
         return
@@ -914,6 +951,7 @@ def init_conductores():
     )
     conn.commit()
     conn.close()
+
 
 def insert_conductor(nombre, licencia='', vigencia='', telefono='', vehiculo='', estatus='Activo', tenant_id=1):
     nombre = sanitize_text(nombre, 100)
@@ -941,6 +979,7 @@ def insert_conductor(nombre, licencia='', vigencia='', telefono='', vehiculo='',
     except:
         return None
 
+
 def get_all_conductores(tenant_id=None):
     if tenant_id is not None:
         tenant_id = int(sanitize_number(tenant_id, 0, 9999))
@@ -958,6 +997,7 @@ def get_all_conductores(tenant_id=None):
     conn.close()
     return df
 
+
 def delete_conductor(cid, tenant_id=1):
     try:
         cid = int(cid)
@@ -973,9 +1013,7 @@ def delete_conductor(cid, tenant_id=1):
         conn.commit()
         conn.close()
 
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  PRESUPUESTOS
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 def init_presupuestos():
     if _use_supabase:
         return
@@ -989,6 +1027,7 @@ def init_presupuestos():
     )
     conn.commit()
     conn.close()
+
 
 def set_presupuesto(categoria, limite, tipo='vehiculo', tenant_id=1):
     categoria = sanitize_text(categoria, 100)
@@ -1013,6 +1052,7 @@ def set_presupuesto(categoria, limite, tipo='vehiculo', tenant_id=1):
         conn.commit()
         conn.close()
 
+
 def get_presupuestos(tenant_id=None):
     if tenant_id is not None:
         tenant_id = int(sanitize_number(tenant_id, 0, 9999))
@@ -1030,6 +1070,7 @@ def get_presupuestos(tenant_id=None):
     conn.close()
     return df
 
+
 def check_presupuesto(categoria, gasto_actual, tipo='vehiculo', tenant_id=1):
     presups = get_presupuestos(tenant_id)
     if presups.empty:
@@ -1041,9 +1082,7 @@ def check_presupuesto(categoria, gasto_actual, tipo='vehiculo', tenant_id=1):
     pct = (gasto_actual / limite * 100) if limite > 0 else 0
     return {'limite': limite, 'gasto': gasto_actual, 'pct': pct, 'alerta': pct >= 80}
 
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  PRECIOS COMBUSTIBLE
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 def init_precios():
     if _use_supabase:
         return
@@ -1058,6 +1097,7 @@ def init_precios():
     )
     conn.commit()
     conn.close()
+
 
 def insert_precio(estacion, tipo, precio, fecha, tenant_id=1):
     estacion = sanitize_text(estacion, 100)
@@ -1078,6 +1118,7 @@ def insert_precio(estacion, tipo, precio, fecha, tenant_id=1):
         conn.commit()
         conn.close()
 
+
 def get_precios(tenant_id=None):
     if tenant_id is not None:
         tenant_id = int(sanitize_number(tenant_id, 0, 9999))
@@ -1089,12 +1130,12 @@ def get_precios(tenant_id=None):
         return pd.DataFrame(r.data)
     conn = sqlite3.connect(DB_NAME)
     if tenant_id is not None:
-        # FIX: Se eliminó la línea que sobreescribia esta consulta
         df = pd.read_sql_query("SELECT * FROM precios_comb WHERE tenant_id=? ORDER BY fecha DESC", conn, params=(tenant_id,))
     else:
         df = pd.read_sql_query("SELECT * FROM precios_comb ORDER BY fecha DESC", conn)
     conn.close()
     return df
+
 
 def delete_precio(pid, tenant_id=1):
     try:
@@ -1111,9 +1152,7 @@ def delete_precio(pid, tenant_id=1):
         conn.commit()
         conn.close()
 
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  AUDITORIA
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 def get_audit_log(tenant_id=None, limit=200):
     if _use_supabase:
         q = _sb.table("audit_log").select("*").order("timestamp", desc=True).limit(limit)
@@ -1129,13 +1168,9 @@ def get_audit_log(tenant_id=None, limit=200):
             df = pd.read_sql_query("SELECT * FROM audit_log ORDER BY timestamp DESC LIMIT ?", conn, params=(limit,))
     except:
         df = pd.DataFrame()
-    # FIX: Faltaba cerrar conexion y devolver el dataframe
     conn.close()
     return df
 
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  REPORT SCHEDULES
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def init_report_schedules():
     if _use_supabase:
@@ -1160,6 +1195,7 @@ def init_report_schedules():
     )
     conn.commit()
     conn.close()
+
 
 def insert_report_schedule(nombre, frecuencia='mensual', dia_semana=0, dia_mes=1, hora=8, formato='pdf', destinatarios='', tipo_reporte='completo', tenant_id=1):
     nombre = sanitize_text(nombre, 100)
@@ -1200,6 +1236,7 @@ def insert_report_schedule(nombre, frecuencia='mensual', dia_semana=0, dia_mes=1
         print("Error inserting report schedule: " + str(e))
         return None
 
+
 def get_all_report_schedules(tenant_id=None):
     if tenant_id is not None:
         tenant_id = int(sanitize_number(tenant_id, 0, 9999))
@@ -1217,6 +1254,7 @@ def get_all_report_schedules(tenant_id=None):
     conn.close()
     return df
 
+
 def update_schedule_last_sent(schedule_id, timestamp, tenant_id=1):
     try:
         schedule_id = int(schedule_id)
@@ -1231,6 +1269,7 @@ def update_schedule_last_sent(schedule_id, timestamp, tenant_id=1):
         cur.execute("UPDATE report_schedules SET ultimo_envio=? WHERE id=? AND tenant_id=?", (timestamp, schedule_id, tenant_id))
         conn.commit()
         conn.close()
+
 
 def toggle_report_schedule(schedule_id, activo, tenant_id=1):
     try:
@@ -1248,6 +1287,7 @@ def toggle_report_schedule(schedule_id, activo, tenant_id=1):
         conn.commit()
         conn.close()
 
+
 def delete_report_schedule(schedule_id, tenant_id=1):
     try:
         schedule_id = int(schedule_id)
@@ -1260,13 +1300,9 @@ def delete_report_schedule(schedule_id, tenant_id=1):
         conn = sqlite3.connect(DB_NAME)
         cur = conn.cursor()
         cur.execute("DELETE FROM report_schedules WHERE id=? AND tenant_id=?", (schedule_id, tenant_id))
-        # FIX: Faltaba commit y close
         conn.commit()
         conn.close()
 
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  NOTIFICATION SETTINGS
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def init_notification_settings():
     if _use_supabase:
@@ -1280,9 +1316,11 @@ def init_notification_settings():
         "activo INTEGER DEFAULT 1, "
         "email TEXT DEFAULT '', "
         "ultimo_envio TEXT DEFAULT '', "
-        "tenant_id INTEGER DEFAULT 1)")
+        "tenant_id INTEGER DEFAULT 1)"
+    )
     conn.commit()
     conn.close()
+
 
 def ensure_default_notifications(tenant_id=1):
     tenant_id = int(sanitize_number(tenant_id, 0, 9999))
@@ -1303,6 +1341,7 @@ def ensure_default_notifications(tenant_id=1):
     conn.commit()
     conn.close()
 
+
 def get_notification_settings(tenant_id=1):
     tenant_id = int(sanitize_number(tenant_id, 0, 9999))
     if _use_supabase:
@@ -1315,6 +1354,7 @@ def get_notification_settings(tenant_id=1):
     df = pd.read_sql_query("SELECT * FROM notification_settings WHERE tenant_id=?", conn, params=(tenant_id,))
     conn.close()
     return df
+
 
 def save_notification_setting(tipo, activo, email, tenant_id=1):
     tipo = sanitize_text(tipo, 50)
@@ -1342,6 +1382,7 @@ def save_notification_setting(tipo, activo, email, tenant_id=1):
         conn.commit()
         conn.close()
 
+
 def update_notification_last_sent(tipo, timestamp, tenant_id=1):
     tipo = sanitize_text(tipo, 50)
     tenant_id = int(sanitize_number(tenant_id, 0, 9999))
@@ -1358,4 +1399,3 @@ def update_notification_last_sent(tipo, timestamp, tenant_id=1):
         cur.execute("UPDATE notification_settings SET ultimo_envio=? WHERE tipo=? AND tenant_id=?", (timestamp, tipo, tenant_id))
         conn.commit()
         conn.close()
-    # FIX: Se eliminó el return df} fantasma que causaba error de sintaxis/variable
