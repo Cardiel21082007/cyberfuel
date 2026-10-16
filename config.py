@@ -1,16 +1,30 @@
 import os
 
+# Intentamos importar Streamlit para leer los secrets de la nube
+try:
+    import streamlit as st
+except ImportError:
+    st = None # Si no está instalado (caso raro), es None
+
 try:
     from dotenv import load_dotenv
     load_dotenv()
 except ImportError:
     pass
 
-DB_MODE = os.getenv("DB_MODE", "sqlite")
+# ━━ FUNCIÓN MÁGICA ━━
+# Lee de Streamlit Cloud primero, si no lo encuentra, lee de .env local
+def get_env(key, default=""):
+    if st and hasattr(st, 'secrets') and key in st.secrets:
+        return st.secrets[key]
+    return os.getenv(key, default)
+
+# ━━ CONFIGURACIÓN ━━
+DB_MODE = get_env("DB_MODE", "sqlite")
 DB_NAME = "data/combustible.db"
 
-SUPABASE_URL = os.getenv("SUPABASE_URL", "")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
+SUPABASE_URL = get_env("SUPABASE_URL", "")
+SUPABASE_KEY = get_env("SUPABASE_KEY", "")
 
 TRIAL_DAYS = 7
 PRICING_INFO = (
@@ -28,19 +42,19 @@ SUBSCRIPTION_KEYS = {
     "CYBER-ANO-R5S6": 12,
 }
 
-SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")
-SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
-SMTP_USER = os.getenv("SMTP_USER", "")
-SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
-ALERT_EMAIL = os.getenv("ALERT_EMAIL", "")
+SMTP_SERVER = get_env("SMTP_SERVER", "smtp.gmail.com")
+SMTP_PORT = int(get_env("SMTP_PORT", "587"))
+SMTP_USER = get_env("SMTP_USER", "")
+SMTP_PASSWORD = get_env("SMTP_PASSWORD", "")
+ALERT_EMAIL = get_env("ALERT_EMAIL", "")
 EMAIL_ENABLED = bool(SMTP_USER and SMTP_PASSWORD and ALERT_EMAIL)
 
 APP_NAME = "CyberFuel AI"
 TIPO_COMB_OPTIONS = ["Diesel", "Gasolina Magna", "Gasolina Premium", "Gas LP"]
 
 # ━━ BOMBA 3: TWILIO WHATSAPP ━━
-TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID", "")
-TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", "")
-TWILIO_WHATSAPP_FROM = os.getenv("TWILIO_WHATSAPP_FROM", "whatsapp:+14155238886") # Número de Sandbox por defecto
-ADMIN_WHATSAPP = os.getenv("ADMIN_WHATSAPP", "") # Número del admin ej: +521551234567
+TWILIO_ACCOUNT_SID = get_env("TWILIO_ACCOUNT_SID", "")
+TWILIO_AUTH_TOKEN = get_env("TWILIO_AUTH_TOKEN", "")
+TWILIO_WHATSAPP_FROM = get_env("TWILIO_WHATSAPP_FROM", "whatsapp:+14155238886") # Número de Sandbox por defecto
+ADMIN_WHATSAPP = get_env("ADMIN_WHATSAPP", "") # Número del admin ej: +521551234567
 WHATSAPP_ENABLED = bool(TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN and ADMIN_WHATSAPP)
