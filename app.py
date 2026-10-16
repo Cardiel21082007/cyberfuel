@@ -955,3 +955,101 @@ if is_admin:
             if not users_df.empty: show_aggrid(users_df)
         else:
             st.info('📭 No hay organizaciones registradas. Crea una primero.')
+          
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  SISTEMA DE LLAVES DE SUSCRIPCIÓN
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+import random
+import string
+
+
+def generate_key_code(plan_prefix="MES"):
+    """Genera un código único tipo CYBER-MES-AB12"""
+    letters = ''.join(random.choices(string.ascii_uppercase, k=2))
+    digits = ''.join(random.choices(string.digits, k=2))
+    return f"CYBER-{plan_prefix}-{letters}{digits}"
+
+
+def create_subscription_key(plan_type='mensual', duration_months=1, notes=''):
+    """Crea una nueva llave de suscripción en Supabase"""
+    if not _use_supabase:
+        return None, "Solo disponible en modo Supabase"
+
+    plan_prefix_map = {
+        'mensual': 'MES',
+        'trimestral': 'TRIM',
+        'anual': 'ANO'
+    }
+    plan_prefix = plan_prefix_map.get(plan_type, 'MES')
+
+    # Generar llave única (intentar 5 veces si hay colisión)
+    for _ in range(5):
+        key_code = generate_key_code(plan_prefix)
+        try:
+            r = _sb.table("subscription_keys").insert({
+                "key_code": key_code,
+                "plan_type": plan_type,
+                "duration_months": duration_months,
+                "is_used": False,
+                "is_active": True,
+                "created_at": str(datetime.now()),
+                "notes": notes
+            }).execute()
+            return key_code, "Llave creada exitosamente"
+        except:
+            continue
+    return None, "No se pudo crear la llave"
+
+
+def validate_subscription_key(key_code, username):
+    """Valida y canjea una llave de suscripción"""
+    if not _use_supabase:
+        return False, "Solo disponible en modo Supabase"
+
+    try:
+        r = _sb.table("subscription_keys").select("*").eq("key_code", key_code).execute()
+        if not r.data:
+            return False, "Llave no existe"
+
+        key_data = r.data[0]
+
+        if not key_data.get("is_active", True):
+            return False, "Llave desactivada (contacta soporte)"
+
+        if key_data.get("is_used", False):
+            return False, "Llave ya fue utilizada"
+
+        # Marcar como usada
+        _sb.table("subscription_keys").update({
+            "is_used": True,
+            "used_by": username,
+            "used_date": str(datetime.now())
+        }).eq("key_code", key_code).execute()
+
+        return True, key_data["duration_months"]
+    except Exception as e:
+        return False, f"Error: {str(e)}"
+
+
+def get_all_subscription_keys(only_available=False):
+    """Obtiene todas las llaves (para el panel de administración)"""
+    if not _use_supabase:
+        return pd.DataFrame()
+
+    q = _sb.table("subscription_keys").select("*").order("created_at", desc=True)
+    if only_available:
+        q = q.eq("is_used", False).eq("is_active", True)
+    r = q.execute()
+    return pd.DataFrame(r.data) if r.data else pd.DataFrame()
+
+
+def deactivate_subscription_key(key_code):
+    """Desactiva una llave (si te la roban o quieres cancelar)"""
+    if not _use_supabase:
+        return False
+    try:
+        _sb.table("subscription_keys").update({"is_active": False}).eq("key_code", key_code).execute()
+        return True
+    except:
+        return False
