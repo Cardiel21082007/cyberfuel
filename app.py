@@ -817,7 +817,13 @@ if is_admin:
         st.markdown('---')
         section_header('📬', 'Reportes Automáticos', 'Programa envíos periódicos de reportes por email')
         if not EMAIL_ENABLED:
-            st.warning('⚠️ Email no configurado. Configura SMTP en variables de entorno.')
+        st.warning('⚠️ Email no configurado. Configura SMTP en variables de entorno.')
+        # ━━ DEBUG TEMPORAL ━━
+        st.write("🔍 DEBUG EMAIL_ENABLED:", EMAIL_ENABLED)
+        st.write("🔍 DEBUG SMTP_SERVER:", repr(SMTP_SERVER))
+        st.write("🔍 DEBUG SMTP_USER:", repr(SMTP_USER))
+        st.write("🔍 DEBUG SMTP_PASSWORD:", "***" if SMTP_PASSWORD else "(vacío)")
+        st.write("🔍 DEBUG ALERT_EMAIL:", repr(ALERT_EMAIL))
         else:
             scheduler_on = is_scheduler_running()
             if scheduler_on:
