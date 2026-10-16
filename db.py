@@ -1358,74 +1358,99 @@ def ensure_default_notifications(tenant_id=1):
     conn.close()
 
 
-def get_notification_settings(tenant_id=1):
-    tenant_id = int(sanitize_number(tenant_id, 0, 9999))
-    if _use_supabase:
-        try:
-            r = _sb.table("notification_settings").select("*").eq("tenant_id", tenant_id).execute()
-            return pd.DataFrame(r.data) if r.data else pd.DataFrame()
-        except:
-            return pd.DataFrame()
-    conn = sqlite3.connect(DB_NAME)
-    df = pd.read_sql_query("SELECT * FROM notification_settings WHERE tenant_id=?", conn, params=(tenant_id,))
-    conn.close()
-    return df
 
 
-def save_notification_setting(tipo, activo, email, tenant_id=1):
-    tipo = sanitize_text(tipo, 50)
-    email = sanitize_text(email, 200)
-    activo = 1 if activo else 0
-    tenant_id = int(sanitize_number(tenant_id, 0, 9999))
-    if _use_supabase:
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  SISTEMA DE LLAVES DE SUSCRIPCIÓN
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+import random
+import string
+
+
+def generate_key_code(plan_prefix="MES"):
+    """Genera un codigo unico tipo CYBER-MES-AB12"""
+    letters = ''.join(random.choices(string.ascii_uppercase, k=2))
+    digits = ''.join(random.choices(string.digits, k=2))
+    return f"CYBER-{plan_prefix}-{letters}{digits}"
+
+
+def create_subscription_key(plan_type='mensual', duration_months=1, notes=''):
+    """Crea una nueva llave de suscripcion en Supabase"""
+    if not _use_supabase:
+        return None, "Solo disponible en modo Supabase"
+
+    plan_prefix_map = {
+        'mensual': 'MES',
+        'trimestral': 'TRIM',
+        'anual': 'ANO'
+    }
+    plan_prefix = plan_prefix_map.get(plan_type, 'MES')
+
+    for _ in range(5):
+        key_code = generate_key_code(plan_prefix)
         try:
-            existing = _sb.table("notification_settings").select("id").eq("tipo", tipo).eq("tenant_id", tenant_id).execute()
-            if existing.data:
-                _sb.table("notification_settings").update({"activo": activo, "email": email}).eq("id", existing.data[0]["id"]).execute()
-            else:
-                _sb.table("notification_settings").insert({"tipo": tipo, "activo": activo, "email": email, "tenant_id": tenant_id}).execute()
+            r = _sb.table("subscription_keys").insert({
+                "key_code": key_code,
+                "plan_type": plan_type,
+                "duration_months": duration_months,
+                "is_used": False,
+                "is_active": True,
+                "created_at": str(datetime.now()),
+                "notes": notes
+            }).execute()
+            return key_code, "Llave creada exitosamente"
         except:
-            pass
-    else:
-        conn = sqlite3.connect(DB_NAME)
-        cur = conn.cursor()
-        cur.execute("SELECT id FROM notification_settings WHERE tipo=? AND tenant_id=?", (tipo, tenant_id))
-        row = cur.fetchone()
-        if row:
-            cur.execute("UPDATE notification_settings SET activo=?, email=? WHERE id=?", (activo, email, row[0]))
-        else:
-            cur.execute("INSERT INTO notification_settings (tipo, activo, email, tenant_id) VALUES (?,?,?,?)", (tipo, activo, email, tenant_id))
-        conn.commit()
-        
-def update_notification_last_sent(tipo, timestamp, tenant_id=1):
-    tipo = sanitize_text(tipo, 50)
-    tenant_id = int(sanitize_number(tenant_id, 0, 9999))
-    if _use_supabase:
-        try:
-            existing = _sb.table("notification_settings").select("id").eq("tipo", tipo).eq("tenant_id", tenant_id).execute()
-            if existing.data:
-                _sb.table("notification_settings").update({"ultimo_envio": timestamp}).eq("id", existing.data[0]["id"]).execute()
-        except:
-            pass
-    else:
-        conn = sqlite3.connect(DB_NAME)
-        cur = conn.cursor()
-        cur.execute("UPDATE notification_settings SET ultimo_envio=? WHERE tipo=? AND tenant_id=?", (timestamp, tipo, tenant_id))
-        conn.commit()
-        def update_notification_last_sent(tipo, timestamp, tenant_id=1):
-    tipo = sanitize_text(tipo, 50)
-    tenant_id = int(sanitize_number(tenant_id, 0, 9999))
-    if _use_supabase:
-        try:
-            existing = _sb.table("notification_settings").select("id").eq("tipo", tipo).eq("tenant_id", tenant_id).execute()
-            if existing.data:
-                _sb.table("notification_settings").update({"ultimo_envio": timestamp}).eq("id", existing.data[0]["id"]).execute()
-        except:
-            pass
-    else:
-        conn = sqlite3.connect(DB_NAME)
-        cur = conn.cursor()
-        cur.execute("UPDATE notification_settings SET ultimo_envio=? WHERE tipo=? AND tenant_id=?", (timestamp, tipo, tenant_id))
-        conn.commit()
-        conn.close()
-       
+            continue
+    return None, "No se pudo crear la llave"
+
+
+def validate_subscription_key(key_code, username):
+    """Valida y canjea una llave de suscripcion"""
+    if not _use_supabase:
+        return False, "Solo disponible en modo Supabase"
+
+    try:
+        r = _sb.table("subscription_keys").select("*").eq("key_code", key_code).execute()
+        if not r.data:
+            return False, "Llave no existe"
+
+        key_data = r.data[0]
+
+        if not key_data.get("is_active", True):
+            return False, "Llave desactivada (contacta soporte)"
+
+        if key_data.get("is_used", False):
+            return False, "Llave ya fue utilizada"
+
+        _sb.table("subscription_keys").update({
+            "is_used": True,
+            "used_by": username,
+            "used_date": str(datetime.now())
+        }).eq("key_code", key_code).execute()
+
+        return True, key_data["duration_months"]
+    except Exception as e:
+        return False, f"Error: {str(e)}"
+
+
+def get_all_subscription_keys(only_available=False):
+    """Obtiene todas las llaves (para el panel de administracion)"""
+    if not _use_supabase:
+        return pd.DataFrame()
+
+    q = _sb.table("subscription_keys").select("*").order("created_at", desc=True)
+    if only_available:
+        q = q.eq("is_used", False).eq("is_active", True)
+    r = q.execute()
+    return pd.DataFrame(r.data) if r.data else pd.DataFrame()
+
+
+def deactivate_subscription_key(key_code):
+    """Desactiva una llave (si te la roban o quieres cancelar)"""
+    if not _use_supabase:
+        return False
+    try:
+        _sb.table("subscription_keys").update({"is_active": False}).eq("key_code", key_code).execute()
+        return True
+    except:
+        return False
