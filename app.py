@@ -45,6 +45,17 @@ except ImportError:
     DB_NAME = 'data/combustible.db'
 
 st.set_page_config(page_title=APP_NAME, layout='wide', initial_sidebar_state='expanded', page_icon="⛽")
+
+# Ocultar menús de Streamlit para look profesional
+st.markdown("""
+    <style>
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        header {visibility: hidden;}
+        .stDeployButton {visibility: hidden;}
+    </style>
+""", unsafe_allow_html=True)
+
 init_db()
 init_estaciones()
 init_conductores()
