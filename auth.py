@@ -1,4 +1,6 @@
 import streamlit as st
+import os
+import base64
 from datetime import datetime, timedelta
 from db import verify_user, register_user, get_user_exp, is_key_used, mark_key_used, validate_subscription_key, update_user_exp
 from security import RateLimiter, password_strength, sanitize_alphanumeric
@@ -9,11 +11,35 @@ from config import (TRIAL_DAYS, PRICING_INFO, SUBSCRIPTION_KEYS,
 _rate_limiter = RateLimiter(max_attempts=5, base_block=60, max_block=3600)
 
 
+def _mostrar_logo():
+    """Muestra el logo de CyberFuel AI centrado, si existe el archivo."""
+    logo_path = "assets/logo.png"
+    if os.path.exists(logo_path):
+        try:
+            with open(logo_path, "rb") as f:
+                img_b64 = base64.b64encode(f.read()).decode()
+            st.markdown(
+                f"""
+                <div style="text-align:center; margin-bottom: 25px; margin-top: 10px;">
+                    <img src="data:image/png;base64,{img_b64}"
+                         alt="CyberFuel AI"
+                         style="width: 130px; height: auto; border-radius: 16px;
+                                box-shadow: 0 4px 24px rgba(0,255,136,0.35);
+                                border: 2px solid rgba(0,255,136,0.4);
+                                padding: 8px; background: #0a0a0f;">
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        except Exception:
+            pass
+
+
 def login_screen():
     st.markdown("""
     <style>
     .login-box {
-        max-width: 420px; margin: 80px auto; padding: 40px;
+        max-width: 420px; margin: 40px auto; padding: 40px;
         border-radius: 20px;
         background: linear-gradient(135deg, rgba(0,255,136,0.05), rgba(189,147,249,0.08));
         border: 1px solid rgba(0,255,136,0.2);
@@ -21,6 +47,9 @@ def login_screen():
     </style>
     <div class="login-box">
     """, unsafe_allow_html=True)
+
+    # Mostrar logo centrado arriba del login
+    _mostrar_logo()
 
     st.markdown("## 🔐 Iniciar Sesión")
 
