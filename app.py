@@ -935,6 +935,49 @@ if is_admin:
         orgs = get_all_organizations()
         if not orgs.empty:
             show_aggrid(orgs)
+                      # ━━━ GENERADOR DE LLAVES DE SUSCRIPCIÓN ━━━
+            st.markdown('---')
+            section_header('🔐', 'Generador de Llaves', 'Crea llaves de suscripción para tus clientes')
+            
+            with st.form('f_gen_key'):
+                k1, k2 = st.columns(2)
+                with k1:
+                    key_plan = st.selectbox('📦 Plan', ['mensual', 'trimestral', 'anual'])
+                with k2:
+                    key_notes = st.text_input('📝 Notas (ej. "Cliente Juan - $499 - 20/10/2025")')
+                
+                if st.form_submit_button('⚡ GENERAR LLAVE'):
+                    duration = {'mensual': 1, 'trimestral': 3, 'anual': 12}.get(key_plan, 1)
+                    new_key, msg = create_subscription_key(key_plan, duration, key_notes)
+                    if new_key:
+                        st.success(f'✅ Llave generada exitosamente!')
+                        st.markdown(f'### 🎉 Tu llave:')
+                        st.code(new_key, language='text')
+                        st.markdown('📋 Cópiala y envíala a tu cliente por WhatsApp')
+                    else:
+                        st.error(f'❌ {msg}')
+            
+            # Mostrar llaves existentes
+            keys_df = get_all_subscription_keys()
+            if not keys_df.empty:
+                st.markdown('#### 📋 Llaves generadas')
+                # Formatear para mostrar
+                display_df = keys_df[['key_code', 'plan_type', 'duration_months', 'is_used', 'is_active', 'used_by', 'notes', 'created_at']].copy()
+                display_df.columns = ['Llave', 'Plan', 'Meses', 'Usada', 'Activa', 'Usada por', 'Notas', 'Creada']
+                st.dataframe(display_df, use_container_width=True, hide_index=True)
+                
+                # Botón para desactivar llave
+                st.markdown('#### 🚫 Desactivar llave robada o cancelada')
+                deact_key = st.text_input('Pega aquí la llave a desactivar:')
+                if st.button('🚫 DESACTIVAR LLAVE') and deact_key:
+                    if deactivate_subscription_key(deact_key.strip()):
+                        clear_all_cache()
+                        st.success(f'✅ Llave {deact_key} desactivada')
+                        st.rerun()
+                    else:
+                        st.error('❌ No se pudo desactivar (revisa que esté bien escrita)')
+            else:
+                st.info('📭 No hay llaves generadas aún. Crea la primera con el formulario de arriba.')
             st.markdown('---')
             section_header('👤', 'Crear Usuario', 'Nuevo usuario para una organización')
             org_list = [str(r['id']) + ': ' + r['nombre'] for _, r in orgs.iterrows()]
