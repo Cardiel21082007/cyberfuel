@@ -22,7 +22,9 @@ from db import (init_db, insert_carga, delete_carga, get_vehiculos,
                 init_report_schedules, insert_report_schedule,
                 update_schedule_last_sent, toggle_report_schedule, delete_report_schedule,
                 init_notification_settings, ensure_default_notifications,
-                save_notification_setting, update_notification_last_sent)
+                save_notification_setting, update_notification_last_sent,
+                create_subscription_key, validate_subscription_key,
+                get_all_subscription_keys, deactivate_subscription_key)
 # ━━ IMPORTS DE LECTURA (VÍA CACHE PARA QUE VUELE) ━━
 from data_cache import (get_data, get_all_vehiculos, get_presupuestos, get_all_estaciones,
                         get_all_conductores, get_notification_settings, get_all_report_schedules,
