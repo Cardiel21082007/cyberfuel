@@ -13,7 +13,7 @@ _rate_limiter = RateLimiter(max_attempts=5, base_block=60, max_block=3600)
 
 def _mostrar_logo():
     """Muestra el logo de CyberFuel AI centrado, si existe el archivo."""
-    logo_path = "assets/logo.png"
+    logo_path = "logo_cyberfuel_concept4.png"
     if os.path.exists(logo_path):
         try:
             with open(logo_path, "rb") as f:
