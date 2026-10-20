@@ -83,9 +83,13 @@ section[data-testid="stSidebar"]>div{background:transparent!important}
 .stFormSubmitButton>button:hover{transform:translateY(-2px)!important;box-shadow:0 8px 30px rgba(0,255,136,0.5)!important}
 [data-testid="stMetricValue"]{font-size:1.8rem!important;font-weight:800!important;background:linear-gradient(135deg,#00ff88,#8be9fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 [data-testid="stMetricLabel"]{font-size:0.8rem!important;font-weight:600!important;text-transform:uppercase!important;letter-spacing:1.5px!important;color:var(--text-secondary)!important}
-.stTabs [data-baseweb="tab-list"]{gap:4px!important;background:var(--bg-secondary)!important;border-radius:16px!important;padding:4px!important;border:1px solid var(--border)!important}
-.stTabs [data-baseweb="tab"]{border-radius:10px!important;padding:8px 12px!important;font-weight:600!important;font-family:'Inter',sans-serif!important;transition:all 0.3s ease!important;color:var(--text-secondary)!important;font-size:0.78rem!important}
-.stTabs [aria-selected="true"]{background:linear-gradient(135deg,rgba(0,255,136,0.15),rgba(0,255,136,0.05))!important;color:#00ff88!important;box-shadow:0 0 20px rgba(0,255,136,0.1)!important;border:1px solid rgba(0,255,136,0.3)!important}
+.stTabs [data-baseweb="tab-list"]{gap:6px!important;background:var(--bg-secondary)!important;border-radius:18px!important;padding:8px!important;border:1px solid var(--border)!important;box-shadow:0 4px 24px rgba(0,0,0,0.3) inset!important}
+.stTabs [data-baseweb="tab"]{border-radius:14px!important;padding:14px 22px!important;font-weight:700!important;font-family:'Inter',sans-serif!important;transition:all 0.4s cubic-bezier(0.4,0,0.2,1)!important;color:var(--text-secondary)!important;font-size:1.05rem!important;letter-spacing:0.3px!important;display:flex!important;align-items:center!important;gap:8px!important}
+.stTabs [data-baseweb="tab"]:hover{background:rgba(0,255,136,0.08)!important;color:#f8f8f2!important;transform:translateY(-1px)!important;box-shadow:0 4px 12px rgba(0,255,136,0.15)!important}
+.stTabs [aria-selected="true"]{background:linear-gradient(135deg,rgba(0,255,136,0.25),rgba(0,255,136,0.1))!important;color:#00ff88!important;box-shadow:0 0 24px rgba(0,255,136,0.2),0 4px 16px rgba(0,255,136,0.15)!important;border:1px solid rgba(0,255,136,0.5)!important;font-weight:800!important;transform:translateY(-2px)!important}
+.stTabs [aria-selected="true"]::before{content:'✦'!important;margin-right:6px!important;color:#00ff88!important;font-size:0.85rem!important;animation:pulse 2s ease-in-out infinite!important}
+@keyframes pulse{0%,100%{opacity:0.6}50%{opacity:1}}
+.stTabs [data-baseweb="tab"] svg{width:22px!important;height:22px!important}
 .stTextInput>div>div>input,.stNumberInput>div>div>input,.stSelectbox>div>div>select,.stTextArea>div>div>textarea{border-radius:10px!important;border:1px solid var(--border)!important;background:rgba(20,20,35,0.6)!important;font-family:'Inter',sans-serif!important;transition:all 0.3s ease!important}
 .stTextInput>div>div>input:focus,.stNumberInput>div>div>input:focus{border-color:rgba(0,255,136,0.5)!important;box-shadow:0 0 15px rgba(0,255,136,0.1)!important}
 .stDataFrame{border-radius:16px!important;border:1px solid var(--border)!important;overflow:hidden}
@@ -97,7 +101,7 @@ section[data-testid="stSidebar"]>div{background:transparent!important}
 hr{border:none!important;height:1px!important;background:linear-gradient(90deg,transparent,rgba(0,255,136,0.3),transparent)!important}
 .stProgress>div>div>div>div{background:linear-gradient(90deg,#00ff88,#8be9fd)!important;border-radius:10px!important}
 </style>
-''', unsafe_allow_html=True)
+''', unsafe_allow_html=True))
 
 def metric_card(icon, label, value, color='#00ff88'):
     st.markdown(f'''<div style="background:rgba(20,20,35,0.8);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:18px 12px;text-align:center;backdrop-filter:blur(10px);"><div style="font-size:1.8rem;margin-bottom:6px;">{icon}</div><div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:1.5px;color:#9ca3af;font-weight:600;margin-bottom:8px;">{label}</div><div style="font-size:1.6rem;font-weight:800;color:{color};">{value}</div></div>''', unsafe_allow_html=True)
