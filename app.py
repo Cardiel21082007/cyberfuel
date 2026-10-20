@@ -101,7 +101,7 @@ section[data-testid="stSidebar"]>div{background:transparent!important}
 hr{border:none!important;height:1px!important;background:linear-gradient(90deg,transparent,rgba(0,255,136,0.3),transparent)!important}
 .stProgress>div>div>div>div{background:linear-gradient(90deg,#00ff88,#8be9fd)!important;border-radius:10px!important}
 </style>
-''', unsafe_allow_html=True))
+''', unsafe_allow_html=True)
 
 def metric_card(icon, label, value, color='#00ff88'):
     st.markdown(f'''<div style="background:rgba(20,20,35,0.8);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:18px 12px;text-align:center;backdrop-filter:blur(10px);"><div style="font-size:1.8rem;margin-bottom:6px;">{icon}</div><div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:1.5px;color:#9ca3af;font-weight:600;margin-bottom:8px;">{label}</div><div style="font-size:1.6rem;font-weight:800;color:{color};">{value}</div></div>''', unsafe_allow_html=True)
