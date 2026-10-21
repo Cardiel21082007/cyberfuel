@@ -620,7 +620,8 @@ if is_admin:
             if st.form_submit_button('💾 GUARDAR CONDUCTOR'):
                 if cnombre:
                     try:
-                        nid = insert_conductor(cnombre, clicencia, cvigencia, ctelefono, cveh, cestatus, active_tid)
+                        active_tid_save = active_tid if active_tid else 1
+                        nid = insert_conductor(cnombre, clicencia, cvigencia, ctelefono, cveh, cestatus, active_tid_save)
                         if nid:
                             clear_all_cache()
                             st.toast('✅ Conductor guardado!')
@@ -633,7 +634,7 @@ if is_admin:
                             st.write(f"**Vigencia:** '{cvigencia}'")
                             st.write(f"**Teléfono:** '{ctelefono}'")
                             st.write(f"**Estatus:** '{cestatus}'")
-                            st.write(f"**Tenant ID:** {active_tid}")
+                            st.write(f"**Tenant ID:** {active_tid} → usando: {active_tid_save}")
                             try:
                                 from db import _sb
                                 test = _sb.table("conductores").insert({
@@ -643,7 +644,7 @@ if is_admin:
                                     "telefono": ctelefono,
                                     "vehiculo_asignado": cveh,
                                     "estatus": cestatus,
-                                    "tenant_id": int(active_tid)
+                                    "tenant_id": int(active_tid_save)
                                 }).execute()
                                 st.success("✅ Insert directo funcionó!")
                                 st.write(test.data)
