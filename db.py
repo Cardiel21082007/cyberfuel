@@ -1012,6 +1012,60 @@ def get_all_conductores(tenant_id=None):
         df = pd.read_sql_query("SELECT * FROM conductores ORDER BY nombre", conn)
     conn.close()
     return df
+def update_conductor(conductor_id, tenant_id=None, **kwargs):
+    """Actualiza un conductor existente"""
+    try:
+        conductor_id = int(conductor_id)
+    except:
+        return False
+    if tenant_id is not None:
+        try:
+            tenant_id = int(sanitize_number(tenant_id, 0, 9999))
+        except:
+            pass
+
+    safe = {}
+    if "nombre" in kwargs and kwargs["nombre"] is not None:
+        safe["nombre"] = sanitize_text(kwargs["nombre"], 100)
+    if "licencia" in kwargs and kwargs["licencia"] is not None:
+        safe["licencia"] = sanitize_alphanumeric(kwargs["licencia"], 30)
+    if "vigencia_lic" in kwargs and kwargs["vigencia_lic"] is not None:
+        safe["vigencia_lic"] = sanitize_text(kwargs["vigencia_lic"], 30)
+    if "telefono" in kwargs and kwargs["telefono"] is not None:
+        safe["telefono"] = sanitize_alphanumeric(kwargs["telefono"], 30)
+    if "vehiculo_asignado" in kwargs and kwargs["vehiculo_asignado"] is not None:
+        safe["vehiculo_asignado"] = sanitize_placa(kwargs["vehiculo_asignado"])
+    if "estatus" in kwargs and kwargs["estatus"] is not None:
+        safe["estatus"] = sanitize_text(kwargs["estatus"], 20)
+
+    if not safe:
+        return False
+
+    try:
+        if _use_supabase:
+            q = _sb.table("conductores").update(safe).eq("id", conductor_id)
+            if tenant_id is not None:
+                q = q.eq("tenant_id", tenant_id)
+            q.execute()
+            return True
+        else:
+            conn = sqlite3.connect(DB_NAME)
+            cur = conn.cursor()
+            set_clause = ", ".join([k + "=?" for k in safe.keys()])
+            values = list(safe.values())
+            if tenant_id is not None:
+                values = values + [conductor_id, tenant_id]
+                cur.execute("UPDATE conductores SET " + set_clause + " WHERE id=? AND tenant_id=?", values)
+            else:
+                values = values + [conductor_id]
+                cur.execute("UPDATE conductores SET " + set_clause + " WHERE id=?", values)
+            conn.commit()
+            conn.close()
+            return True
+    except Exception as e:
+        print("Error updating conductor: " + str(e))
+        return False
+
 
 
 def delete_conductor(cid, tenant_id=1):
