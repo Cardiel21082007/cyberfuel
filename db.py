@@ -992,7 +992,10 @@ def insert_conductor(nombre, licencia='', vigencia='', telefono='', vehiculo='',
             conn.commit()
             conn.close()
             return eid
-    except:
+    except Exception as e:
+        print(f"[ERROR insert_conductor] {str(e)}")
+        print(f"  nombre={nombre}")
+        print(f"  vehiculo={vehiculo} -> sanitize_placa={sanitize_placa(vehiculo)}")
         return None
 
 
