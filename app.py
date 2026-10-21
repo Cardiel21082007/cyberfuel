@@ -599,7 +599,7 @@ if is_admin:
         else:
             st.info('📭 No hay vehículos registrados')
 
-        # ━━━ CONDUCTORES ━━━
+    # ━━━ CONDUCTORES ━━━
     with tabs[6]:
         section_header('👤', 'Conductores', 'Gestión de conductores y asignación de vehículos')
         with st.form('f_cond'):
@@ -618,15 +618,14 @@ if is_admin:
                     cveh = st.text_input('🚗 Vehículo Asignado')
             with cc6: cestatus = st.selectbox('📌 Estatus', ['Activo','Inactivo','Vacaciones','Baja'])
             if st.form_submit_button('💾 GUARDAR CONDUCTOR'):
-            if st.form_submit_button('💾 GUARDAR CONDUCTOR'):
                 if cnombre:
-                    # DEBUG temporal - muestra el error real
                     try:
                         nid = insert_conductor(cnombre, clicencia, cvigencia, ctelefono, cveh, cestatus, active_tid)
                         if nid:
-                            clear_all_cache(); st.toast('✅ Conductor guardado!'); st.rerun()
+                            clear_all_cache()
+                            st.toast('✅ Conductor guardado!')
+                            st.rerun()
                         else:
-                            # Mostrar TODOS los valores enviados
                             st.error('❌ Error al guardar - DEBUG:')
                             st.write(f"**Nombre:** {cnombre}")
                             st.write(f"**Vehículo (cveh):** '{cveh}'")
@@ -635,7 +634,6 @@ if is_admin:
                             st.write(f"**Teléfono:** '{ctelefono}'")
                             st.write(f"**Estatus:** '{cestatus}'")
                             st.write(f"**Tenant ID:** {active_tid}")
-                            # Probar INSERT directo a Supabase para ver error
                             try:
                                 from db import _sb
                                 test = _sb.table("conductores").insert({
@@ -653,13 +651,12 @@ if is_admin:
                                 st.error(f"❌ ERROR REAL DE SUPABASE: {str(e)}")
                     except Exception as e:
                         st.error(f"❌ Excepción: {str(e)}")
-                else: st.error('❌ Nombre requerido')
+                else:
+                    st.error('❌ Nombre requerido')
         cdf = get_all_conductores(active_tid)
         if not cdf.empty:
             show_aggrid(cdf)
             st.markdown('---')
-            
-            # ━━ EDITAR CONDUCTOR ━━
             section_header('✏️', 'Editar Conductor', 'Modifica los datos de un conductor existente')
             edit_cond_opts = {}
             for _, r in cdf.iterrows():
@@ -667,11 +664,9 @@ if is_admin:
                 estatus_icon = '🟢' if r.get('estatus') == 'Activo' else '🔴'
                 label = f"{estatus_icon} {r['nombre']} — {veh}" if veh else f"{estatus_icon} {r['nombre']}"
                 edit_cond_opts[label] = r['id']
-            
             sel_edit_cond = st.selectbox('🔍 Seleccionar conductor a editar:', list(edit_cond_opts.keys()), key='edit_cond_sel')
             edit_cond_id = edit_cond_opts[sel_edit_cond]
             edit_cond_row = cdf[cdf['id'] == edit_cond_id].iloc[0]
-            
             with st.form('f_edit_cond'):
                 ec1, ec2, ec3 = st.columns(3)
                 with ec1:
@@ -682,11 +677,9 @@ if is_admin:
                     e_cvigencia = st.text_input('📅 Vigencia Licencia', value=edit_cond_row.get('vigencia_lic', '') or '', key='ec_vigencia')
                 with ec3:
                     e_ctelefono = st.text_input('📞 Teléfono', value=edit_cond_row.get('telefono', '') or '', key='ec_telefono')
-                    # Vehículo asignado
                     current_veh = edit_cond_row.get('vehiculo_asignado', '') or ''
                     evasig_opts = veh_select_options(active_tid)
                     if evasig_opts:
-                        # Crear lista con opción vacía + vehículos + el actual si no está en la lista
                         veh_keys = ['(Sin asignar)'] + list(evasig_opts.keys())
                         try:
                             current_idx = 0
@@ -700,8 +693,6 @@ if is_admin:
                             e_cveh = st.text_input('🚗 Vehículo Asignado', value=current_veh, key='ec_veh_text')
                     else:
                         e_cveh = st.text_input('🚗 Vehículo Asignado', value=current_veh, key='ec_veh_text2')
-                
-                # Estatus (segunda fila)
                 ec4, ec5 = st.columns(2)
                 with ec4:
                     current_estatus = edit_cond_row.get('estatus', 'Activo') or 'Activo'
@@ -713,12 +704,9 @@ if is_admin:
                     e_cestatus = st.selectbox('📌 Estatus', estatus_list, index=estatus_idx, key='ec_estatus')
                 with ec5:
                     st.markdown(f'<div style="font-size:0.8rem;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">🆔 ID</div><div style="font-size:1.1rem;font-weight:700;color:#bd93f9;margin-bottom:16px;">{edit_cond_id}</div>', unsafe_allow_html=True)
-                
-                # Botones
                 b1, b2 = st.columns(2)
                 with b1: bupd_cond = st.form_submit_button('✅ ACTUALIZAR CONDUCTOR', use_container_width=True)
                 with b2: bdel_cond = st.form_submit_button('🗑️ ELIMINAR CONDUCTOR', use_container_width=True)
-                
                 if bupd_cond:
                     if e_cnombre:
                         from db import update_conductor
@@ -726,15 +714,18 @@ if is_admin:
                                             nombre=e_cnombre, licencia=e_clicencia,
                                             vigencia_lic=e_cvigencia, telefono=e_ctelefono,
                                             vehiculo_asignado=e_cveh, estatus=e_cestatus):
-                            clear_all_cache(); st.toast('✅ Conductor actualizado!'); st.rerun()
+                            clear_all_cache()
+                            st.toast('✅ Conductor actualizado!')
+                            st.rerun()
                         else:
                             st.error('❌ Error al actualizar')
                     else:
                         st.error('❌ El nombre es obligatorio')
-                
                 if bdel_cond:
                     delete_conductor(edit_cond_id, active_tid)
-                    clear_all_cache(); st.toast('🗑️ Conductor eliminado!'); st.rerun()
+                    clear_all_cache()
+                    st.toast('🗑️ Conductor eliminado!')
+                    st.rerun()
         else:
             st.info('📭 No hay conductores registrados. Crea uno con el formulario de arriba.')
 
