@@ -611,8 +611,11 @@ if is_admin:
             with cc4: ctelefono = st.text_input('📞 Teléfono')
             with cc5:
                 vasig_opts = veh_select_options(active_tid)
-                if vasig_opts: cveh = st.selectbox('🚗 Vehículo Asignado', [''] + list(vasig_opts.keys()))
-                else: cveh = st.text_input('🚗 Vehículo Asignado')
+                if vasig_opts:
+                    sel_cveh = st.selectbox('🚗 Vehículo Asignado', [''] + list(vasig_opts.keys()))
+                    cveh = vasig_opts.get(sel_cveh, '') if sel_cveh else ''
+                else:
+                    cveh = st.text_input('🚗 Vehículo Asignado')
             with cc6: cestatus = st.selectbox('📌 Estatus', ['Activo','Inactivo','Vacaciones','Baja'])
             if st.form_submit_button('💾 GUARDAR CONDUCTOR'):
                 if cnombre:
