@@ -618,10 +618,41 @@ if is_admin:
                     cveh = st.text_input('🚗 Vehículo Asignado')
             with cc6: cestatus = st.selectbox('📌 Estatus', ['Activo','Inactivo','Vacaciones','Baja'])
             if st.form_submit_button('💾 GUARDAR CONDUCTOR'):
+            if st.form_submit_button('💾 GUARDAR CONDUCTOR'):
                 if cnombre:
-                    nid = insert_conductor(cnombre, clicencia, cvigencia, ctelefono, cveh, cestatus, active_tid)
-                    if nid: clear_all_cache(); st.toast('✅ Conductor guardado!'); st.rerun()
-                    else: st.error('❌ Error al guardar')
+                    # DEBUG temporal - muestra el error real
+                    try:
+                        nid = insert_conductor(cnombre, clicencia, cvigencia, ctelefono, cveh, cestatus, active_tid)
+                        if nid:
+                            clear_all_cache(); st.toast('✅ Conductor guardado!'); st.rerun()
+                        else:
+                            # Mostrar TODOS los valores enviados
+                            st.error('❌ Error al guardar - DEBUG:')
+                            st.write(f"**Nombre:** {cnombre}")
+                            st.write(f"**Vehículo (cveh):** '{cveh}'")
+                            st.write(f"**Licencia:** '{clicencia}'")
+                            st.write(f"**Vigencia:** '{cvigencia}'")
+                            st.write(f"**Teléfono:** '{ctelefono}'")
+                            st.write(f"**Estatus:** '{cestatus}'")
+                            st.write(f"**Tenant ID:** {active_tid}")
+                            # Probar INSERT directo a Supabase para ver error
+                            try:
+                                from db import _sb
+                                test = _sb.table("conductores").insert({
+                                    "nombre": cnombre,
+                                    "licencia": clicencia,
+                                    "vigencia_lic": cvigencia,
+                                    "telefono": ctelefono,
+                                    "vehiculo_asignado": cveh,
+                                    "estatus": cestatus,
+                                    "tenant_id": int(active_tid)
+                                }).execute()
+                                st.success("✅ Insert directo funcionó!")
+                                st.write(test.data)
+                            except Exception as e:
+                                st.error(f"❌ ERROR REAL DE SUPABASE: {str(e)}")
+                    except Exception as e:
+                        st.error(f"❌ Excepción: {str(e)}")
                 else: st.error('❌ Nombre requerido')
         cdf = get_all_conductores(active_tid)
         if not cdf.empty:
