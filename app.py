@@ -497,16 +497,143 @@ with tabs[2] if is_admin else tabs[1]:
                 delete_carga(sid, nm)
                 clear_all_cache(); st.toast('🗑️ Eliminada'); st.rerun()
 
-# ━━━ INFORMES ━━━
-if is_admin:
-    with tabs[3]:
-        section_header('📋', 'Informes', 'Exporta reportes detallados')
-        df = get_data(active_tid)
-        if not df.empty:
-            show_aggrid(df)
-            d1,d2 = st.columns(2)
-            with d1: st.download_button('📊 Descargar EXCEL', generar_excel(df, 'Reporte', active_tid), 'Reporte.xlsx', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-            with d2: st.download_button('📄 Descargar PDF', generar_pdf(df, 'Reporte', active_tid), 'Reporte.pdf', mime='application/pdf')
+    # ━━━ INFORMES ━━━
+    if is_admin:
+        with tabs[3]:
+            section_header('📋', 'Informes', 'Exporta reportes detallados con filtros personalizados')
+            df = get_data(active_tid)
+            if not df.empty:
+                # ━━ FILTROS DE REPORTE ━━
+                st.markdown("#### 🔍 Filtros de Reporte")
+                
+                # Preparar columna de fecha
+                df['fdt'] = pd.to_datetime(df['fecha'], format='mixed', errors='coerce')
+                
+                # Fila 1 de filtros: Vehículo, Conductor, Tipo, Estación
+                f1, f2, f3, f4 = st.columns(4)
+                
+                with f1:
+                    vehiculos_disp = ['Todos'] + sorted(df['vehiculo'].dropna().unique().tolist())
+                    sel_veh = st.selectbox('🚗 Vehículo', vehiculos_disp, key='filter_veh')
+                
+                with f2:
+                    conductores_disp = ['Todos'] + sorted([c for c in df['conductor'].dropna().unique().tolist() if c])
+                    sel_cond = st.selectbox('👤 Conductor', conductores_disp, key='filter_cond')
+                
+                with f3:
+                    tipos_disp = ['Todos'] + sorted(df['tipo_combustible'].dropna().unique().tolist())
+                    sel_tipo = st.selectbox('⛽ Tipo Combustible', tipos_disp, key='filter_tipo')
+                
+                with f4:
+                    estaciones_disp = ['Todas'] + sorted([e for e in df['estacion'].dropna().unique().tolist() if e])
+                    sel_est = st.selectbox('📍 Estación', estaciones_disp, key='filter_est')
+                
+                # Fila 2 de filtros: Fechas, Alerta, Limpiar
+                f5, f6, f7 = st.columns(3)
+                
+                with f5:
+                    fec_cols = st.columns(2)
+                    with fec_cols[0]:
+                        fecha_min = df['fdt'].min().date() if not df.empty else datetime.today()
+                        fecha_max = df['fdt'].max().date() if not df.empty else datetime.today()
+                        fecha_ini = st.date_input('📅 Desde', fecha_min, key='filter_fec_ini')
+                    with fec_cols[1]:
+                        fecha_fin = st.date_input('📅 Hasta', fecha_max, key='filter_fec_fin')
+                
+                with f6:
+                    alertas_disp = ['Todas', 'Normal', 'ANOMALIA', 'ANOMALIA_AI']
+                    sel_alerta = st.selectbox('🚨 Alerta', alertas_disp, key='filter_alerta')
+                
+                with f7:
+                    st.markdown("<div style='height:23px'></div>", unsafe_allow_html=True)
+                    if st.button('🔄 Limpiar Filtros', use_container_width=True):
+                        st.rerun()
+                
+                # ━━ APLICAR FILTROS ━━
+                df_filtrado = df.copy()
+                
+                if sel_veh != 'Todos':
+                    df_filtrado = df_filtrado[df_filtrado['vehiculo'] == sel_veh]
+                
+                if sel_cond != 'Todos':
+                    df_filtrado = df_filtrado[df_filtrado['conductor'] == sel_cond]
+                
+                if sel_tipo != 'Todos':
+                    df_filtrado = df_filtrado[df_filtrado['tipo_combustible'] == sel_tipo]
+                
+                if sel_est != 'Todas':
+                    df_filtrado = df_filtrado[df_filtrado['estacion'] == sel_est]
+                
+                if sel_alerta != 'Todas':
+                    df_filtrado = df_filtrado[df_filtrado['alerta_anomalia'] == sel_alerta]
+                
+                # Filtro por rango de fechas
+                mask_fec = (df_filtrado['fdt'].dt.date >= fecha_ini) & (df_filtrado['fdt'].dt.date <= fecha_fin)
+                df_filtrado = df_filtrado[mask_fec]
+                
+                # ━━ RESUMEN DE FILTROS APLICADOS ━━
+                st.markdown("---")
+                filtros_activos = []
+                if sel_veh != 'Todos': filtros_activos.append(f"🚗 {sel_veh}")
+                if sel_cond != 'Todos': filtros_activos.append(f"👤 {sel_cond}")
+                if sel_tipo != 'Todos': filtros_activos.append(f"⛽ {sel_tipo}")
+                if sel_est != 'Todas': filtros_activos.append(f"📍 {sel_est}")
+                if sel_alerta != 'Todas': filtros_activos.append(f"🚨 {sel_alerta}")
+                filtros_activos.append(f"📅 {fecha_ini.strftime('%d/%m/%Y')} - {fecha_fin.strftime('%d/%m/%Y')}")
+                
+                st.markdown(f"**🔍 Filtros activos:** {' · '.join(filtros_activos)}")
+                st.markdown(f"#### 📊 Resultados: {len(df_filtrado)} registros")
+                
+                if not df_filtrado.empty:
+                    # KPIs del filtrado
+                    k1, k2, k3, k4 = st.columns(4)
+                    with k1:
+                        total_gasto = df_filtrado['custo'].sum() if 'custo' in df_filtrado.columns else 0
+                        st.metric("💰 Gasto Total", f"${total_gasto:,.2f}")
+                    with k2:
+                        total_litros = df_filtrado['litros'].sum() if 'litros' in df_filtrado.columns else 0
+                        st.metric("🛢️ Litros Totales", f"{total_litros:,.1f} L")
+                    with k3:
+                        rend_prom = df_filtrado[df_filtrado['rendimento'] > 0]['rendimento'].mean() if 'rendimento' in df_filtrado.columns else 0
+                        st.metric("⚡ Rend. Promedio", f"{rend_prom:.2f} km/l" if not pd.isna(rend_prom) else "N/A")
+                    with k4:
+                        n_anomalias = len(df_filtrado[df_filtrado['alerta_anomalia'].isin(['ANOMALIA', 'ANOMALIA_AI'])]) if 'alerta_anomalia' in df_filtrado.columns else 0
+                        st.metric("🚨 Anomalías", n_anomalias)
+                    
+                    # Quitar columna temporal fdt
+                    if 'fdt' in df_filtrado.columns:
+                        df_filtrado = df_filtrado.drop(columns=['fdt'])
+                    
+                    # Tabla filtrada
+                    st.markdown("---")
+                    show_aggrid(df_filtrado)
+                    
+                    # Botones de exportación
+                    st.markdown('---')
+                    d1, d2 = st.columns(2)
+                    with d1:
+                        st.download_button(
+                            '📊 Descargar EXCEL Filtrado',
+                            generar_excel(df_filtrado, 'Reporte_Filtrado', active_tid),
+                            'Reporte_Filtrado.xlsx',
+                            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                            use_container_width=True
+                        )
+                    with d2:
+                        st.download_button(
+                            '📄 Descargar PDF Filtrado',
+                            generar_pdf(df_filtrado, 'Reporte_Filtrado', active_tid),
+                            'Reporte_Filtrado.pdf',
+                            mime='application/pdf',
+                            use_container_width=True
+                        )
+                else:
+                    st.warning('⚠️ No hay registros que coincidan con los filtros seleccionados. Intenta con otros criterios.')
+                    # Botón para limpiar
+                    if st.button('🔄 Ver todos los registros'):
+                        st.rerun()
+            else:
+                st.info('📭 Sin datos disponibles — Registra tu primera carga')
 
     with tabs[4]:
         section_header('🚨', 'Alertas IA', 'Anomalías detectadas por inteligencia artificial')
