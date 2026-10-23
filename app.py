@@ -636,14 +636,166 @@ with tabs[2] if is_admin else tabs[1]:
                 st.info('📭 Sin datos disponibles — Registra tu primera carga')
 
     with tabs[4]:
-        section_header('🚨', 'Alertas IA', 'Anomalías detectadas por inteligencia artificial')
+        section_header('🚨', 'Alertas IA', 'Anomalías detectadas con diagnóstico y recomendaciones')
         df = get_data(active_tid)
-        da = df[df['alerta_anomalia'].isin(['ANOMALIA', 'ANOMALIA_AI'])]
+        da = df[df['alerta_anomalia'].isin(['ANOMALIA', 'ANOMALIA_AI'])].copy() if not df.empty else df
+
         if da.empty:
-            st.markdown('<div style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);border-radius:14px;padding:20px;text-align:center;color:#00ff88;font-weight:600;">✅ Sin anomalías detectadas</div>', unsafe_allow_html=True)
+            st.markdown("""
+            <div style="background:rgba(0,255,136,0.1);border:2px solid rgba(0,255,136,0.4);border-radius:16px;padding:30px;text-align:center;margin:20px 0;">
+                <div style="font-size:3rem;margin-bottom:10px;">✅</div>
+                <h3 style="color:#00ff88;margin:0;">Sin anomalías detectadas</h3>
+                <p style="color:#9ca3af;margin:10px 0 0 0;">Todas tus cargas tienen rendimiento normal. La IA sigue aprendiendo del patrón de tu flotilla.</p>
+            </div>
+            """, unsafe_allow_html=True)
         else:
-            st.markdown(f'<div style="background:rgba(255,85,85,0.1);border:1px solid rgba(255,85,85,0.3);border-radius:14px;padding:15px;text-align:center;color:#ff5555;font-weight:600;margin-bottom:15px;">⚠️ {len(da)} anomalía(s) detectada(s)</div>', unsafe_allow_html=True)
-            show_aggrid(da)
+            # Resumen de anomalías por tipo
+            n_anomalia = len(da[da['alerta_anomalia'] == 'ANOMALIA'])
+            n_anomalia_ai = len(da[da['alerta_anomalia'] == 'ANOMALIA_AI'])
+            
+            st.markdown(f"""
+            <div style="background:linear-gradient(135deg,rgba(255,85,85,0.15),rgba(255,85,85,0.05));border:2px solid rgba(255,85,85,0.4);border-radius:16px;padding:20px;margin:15px 0;">
+                <h3 style="color:#ff5555;margin:0 0 15px 0;text-align:center;">⚠️ {len(da)} anomalía(s) detectada(s)</h3>
+                <div style="display:flex;justify-content:center;gap:30px;flex-wrap:wrap;">
+                    <div style="text-align:center;">
+                        <div style="font-size:2rem;font-weight:800;color:#f1fa8c;">{n_anomalia}</div>
+                        <div style="color:#9ca3af;font-size:0.85rem;">⚠️ Bajo Rendimiento</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="font-size:2rem;font-weight:800;color:#ff5555;">{n_anomalia_ai}</div>
+                        <div style="color:#9ca3af;font-size:0.85rem;">🤖 Anomalía IA</div>
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Tabla completa (colapsable)
+            with st.expander("📋 Ver tabla completa de anomalías", expanded=False):
+                show_aggrid(da)
+            
+            st.markdown("### 🔍 Diagnóstico detallado por anomalía")
+            st.markdown("Cada anomalía muestra su descripción y recomendaciones de acción:")
+            
+            # Ordenar por fecha descendente
+            da = da.sort_values('fecha', ascending=False) if 'fecha' in da.columns else da
+            
+            # Iterar sobre cada anomalía y mostrar tarjeta
+            for idx, row in da.iterrows():
+                tipo = row.get('alerta_anomalia', '')
+                vehiculo = row.get('vehiculo', '')
+                fecha = row.get('fecha', '')
+                conductor = row.get('conductor', '') or 'Sin asignar'
+                litros = row.get('litros', 0)
+                custo = row.get('custo', 0)
+                kilometraje = row.get('kilometraje', 0)
+                rendimento = row.get('rendimento', 0)
+                estacion = row.get('estacion', '') or 'Sin estación'
+                
+                # Determinar severidad y configuración según tipo
+                if tipo == 'ANOMALIA_AI':
+                    severidad = '🔴 ALTA'
+                    color_sev = '#ff5555'
+                    bg_sev = 'rgba(255,85,85,0.1)'
+                    border_sev = 'rgba(255,85,85,0.4)'
+                    descripcion = "La inteligencia artificial detectó un patrón anómalo considerando múltiples variables (litros, costo, kilometraje, hora del día) que difiere significativamente del patrón histórico aprendido de este vehículo. Esto puede indicar robo, mal uso, o cambio en el comportamiento del vehículo."
+                    recomendaciones = [
+                        "🚨 **Posible robo de combustible**: Verifica el destino real del viaje y la ruta tomada.",
+                        "📍 **Confirma la estación**: Verifica si la carga se hizo en una estación diferente a la habitual.",
+                        "👤 **Verifica identidad del conductor**: Confirma quién realmente hizo la carga.",
+                        "🔁 **Revisa cargas múltiples**: Si hubo más de una carga el mismo día del mismo vehículo, investiga.",
+                        "📈 **Si es recurrente** (3+ veces en mismo vehículo/conductor): programa revisión mecánica y entrevista al conductor."
+                    ]
+                else:  # ANOMALIA (básica)
+                    severidad = '🟡 MEDIA'
+                    color_sev = '#f1fa8c'
+                    bg_sev = 'rgba(241,250,140,0.08)'
+                    border_sev = 'rgba(241,250,140,0.3)'
+                    descripcion = "El rendimiento calculado para esta carga cayó por debajo del 70% del rendimiento promedio histórico del vehículo, o por debajo del rendimiento mínimo configurado. Indica que esta carga en particular fue menos eficiente de lo esperado."
+                    recomendaciones = [
+                        "🔢 **Verifica captura**: Revisa que el kilometraje y litros estén correctos. Los errores de captura son la causa #1.",
+                        "🔧 **Mantenimiento pendiente**: Si el vehículo tiene filtros/inyectores sucios o llantas desgastadas, baja el rendimiento.",
+                        "🛣️ **Ruta o condiciones diferentes**: Carga en pendiente, tráfico, remolque, o ruta con paradas frecuentes afecta el rendimiento.",
+                        "🌡️ **Condiciones climáticas**: Clima extremo (frío/calor) puede reducir el rendimiento hasta 10%.",
+                        "⏱️ **Si es la PRIMERA anomalía** del vehículo: probablemente es un dato atípico. Monitorea las próximas cargas."
+                    ]
+                
+                # Calcular rendimiento esperado (promedio del vehículo)
+                df_veh = df[df['vehiculo'] == vehiculo] if not df.empty else df
+                rend_esperado = df_veh[df_veh['rendimento'] > 0]['rendimento'].mean() if 'rendimento' in df_veh.columns and not df_veh.empty else 0
+                if pd.isna(rend_esperado): rend_esperado = 0
+                dif_rend = ((rendimento - rend_esperado) / rend_esperado * 100) if rend_esperado > 0 else 0
+                
+                # Tarjeta expandible por anomalía
+                expander_title = f"{severidad} | {vehiculo} — {fecha} — Rend: {rendimento:.2f} km/l ({dif_rend:+.1f}%)"
+                
+                with st.expander(expander_title, expanded=False):
+                    # Header con datos principales
+                    st.markdown(f"""
+                    <div style="background:{bg_sev};border:1px solid {border_sev};border-radius:12px;padding:15px;margin:10px 0;">
+                        <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+                            <div><span style="color:#9ca3af;font-size:0.85rem;">🚗 Vehículo:</span> <b style="color:#00ff88;">{vehiculo}</b></div>
+                            <div><span style="color:#9ca3af;font-size:0.85rem;">📅 Fecha:</span> <b>{fecha}</b></div>
+                            <div><span style="color:#9ca3af;font-size:0.85rem;">👤 Conductor:</span> <b>{conductor}</b></div>
+                        </div>
+                        <hr style="border:1px solid {border_sev};margin:10px 0;">
+                        <div style="display:flex;justify-content:space-around;flex-wrap:wrap;gap:10px;">
+                            <div><span style="color:#9ca3af;font-size:0.8rem;">🛣️ Km:</span> <b>{kilometraje:,.0f}</b></div>
+                            <div><span style="color:#9ca3af;font-size:0.8rem;">🛢️ Litros:</span> <b>{litros:.1f}</b></div>
+                            <div><span style="color:#9ca3af;font-size:0.8rem;">💰 Costo:</span> <b>${custo:,.2f}</b></div>
+                            <div><span style="color:#9ca3af;font-size:0.8rem;">⚡ Rendimiento:</span> <b style="color:{color_sev};">{rendimento:.2f} km/l</b></div>
+                            <div><span style="color:#9ca3af;font-size:0.8rem;">📊 Esperado:</span> <b>{rend_esperado:.2f} km/l</b></div>
+                            <div><span style="color:#9ca3af;font-size:0.8rem;">📍 Estación:</span> <b>{estacion}</b></div>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    # Descripción
+                    st.markdown(f"#### 📝 ¿Qué significa esta anomalía?")
+                    st.markdown(f"""
+                    <div style="background:rgba(20,20,35,0.5);border-left:3px solid {color_sev};padding:12px 15px;border-radius:8px;margin:10px 0;">
+                        <p style="color:#f8f8f2;margin:0;">{descripcion}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    # Recomendaciones
+                    st.markdown(f"#### ✅ ¿Qué hacer para remediarlo?")
+                    for rec in recomendaciones:
+                        st.markdown(f"- {rec}")
+                    
+                    # Comparación con histórico
+                    if rend_esperado > 0:
+                        st.markdown(f"#### 📊 Análisis comparativo")
+                        st.markdown(f"""
+                        <div style="background:rgba(20,20,35,0.5);border-radius:8px;padding:12px;margin:10px 0;">
+                            <table style="width:100%;color:#f8f8f2;">
+                                <tr>
+                                    <td style="padding:5px;">⚡ Rendimiento de esta carga:</td>
+                                    <td style="padding:5px;text-align:right;"><b style="color:{color_sev};">{rendimento:.2f} km/l</b></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:5px;">📊 Rendimiento promedio del vehículo:</td>
+                                    <td style="padding:5px;text-align:right;"><b>{rend_esperado:.2f} km/l</b></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:5px;">📉 Diferencia:</td>
+                                    <td style="padding:5px;text-align:right;"><b style="color:{color_sev};">{dif_rend:+.1f}%</b></td>
+                                </tr>
+                            </table>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    
+                    # Acción sugerida rápida
+                    st.markdown(f"#### 🎯 Acción inmediata sugerida:")
+                    if tipo == 'ANOMALIA_AI':
+                        accion = "🔍 **Investiga esta carga en los próximos 3 días**. Habla con el conductor, verifica la ruta en GPS, y confirma con la estación si la carga fue real. Si detectas robo, desactiva temporalmente al conductor y contacta soporte."
+                    elif dif_rend < -30:
+                        accion = "🔧 **Agenda revisión mecánica** del vehículo. Una caída mayor al 30% del rendimiento casi siempre indica problema mecánico (filtros, inyectores, llantas, frenos)."
+                    elif dif_rend < -15:
+                        accion = "⚠️ **Monitorea las próximas 3 cargas**. Si la anomalía se repite, agenda mantenimiento preventivo. Si es puntual, probablemente fue por condiciones de ruta o captura."
+                    else:
+                        accion = "✅ **Probablemente es un dato atípico**. Verifica la captura y sigue usando el vehículo normalmente. Monitorea las próximas cargas."
+                    
+                    st.info(accion)
 
     with tabs[5]:
         section_header('🚛', 'Flotilla', 'Gestión de vehículos y mantenimiento')
