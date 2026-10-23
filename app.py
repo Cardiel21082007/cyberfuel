@@ -47,98 +47,58 @@ except ImportError:
 
 st.set_page_config(page_title=APP_NAME, layout='wide', initial_sidebar_state='expanded', page_icon="⛽")
 
-# ━━━ CSS AGRESIVO: PESTAÑAS GRANDES + KPIs AMPLIOS ━━━
+# ━━━ CSS ELEGANTE: Pestañas limpias + Dashboard espacioso ━━━
 st.markdown("""
 <style>
 /* ═══════════════════════════════════════ */
-/*  PESTAÑAS GRANDES Y ESTÉTICAS          */
+/*  PESTAÑAS - Limpieza y elegancia        */
 /* ═══════════════════════════════════════ */
 
 /* Contenedor de las pestañas */
 div[data-baseweb="tab-list"] {
-    gap: 8px !important;
+    gap: 4px !important;
     background: #12121a !important;
-    border-radius: 18px !important;
-    padding: 12px !important;
+    border-radius: 14px !important;
+    padding: 6px !important;
     border: 1px solid rgba(255,255,255,0.08) !important;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.4) inset !important;
-    min-height: 80px !important;
-    display: flex !important;
-    align-items: center !important;
 }
 
 /* Cada pestaña individual */
 div[data-baseweb="tab"],
 .stTabs button {
-    border-radius: 14px !important;
-    padding: 22px 32px !important;
-    font-weight: 700 !important;
+    border-radius: 10px !important;
+    padding: 12px 18px !important;
+    font-weight: 600 !important;
     font-family: 'Inter', sans-serif !important;
-    transition: all 0.4s cubic-bezier(0.4,0,0.2,1) !important;
+    transition: all 0.3s ease !important;
     color: #9ca3af !important;
-    font-size: 1.35rem !important;
-    letter-spacing: 0.3px !important;
-    min-height: 70px !important;
-    min-width: 140px !important;
+    font-size: 0.95rem !important;
+    letter-spacing: 0.2px !important;
     background: transparent !important;
     border: 1px solid transparent !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    line-height: 1.5 !important;
-    margin: 0 2px !important;
+    line-height: 1.4 !important;
+    margin: 2px !important;
 }
 
-/* Hover de pestañas */
+/* Hover suave */
 div[data-baseweb="tab"]:hover,
 .stTabs button:hover {
-    background: rgba(0,255,136,0.1) !important;
+    background: rgba(0,255,136,0.08) !important;
     color: #f8f8f2 !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 18px rgba(0,255,136,0.25) !important;
-    border: 1px solid rgba(0,255,136,0.4) !important;
+    border: 1px solid rgba(0,255,136,0.2) !important;
 }
 
-/* Pestaña activa/seleccionada */
+/* Pestaña activa */
 div[data-baseweb="tab"][aria-selected="true"],
 .stTabs button[data-baseweb="tab-selected"] {
-    background: linear-gradient(135deg, rgba(0,255,136,0.3), rgba(0,255,136,0.12)) !important;
+    background: linear-gradient(135deg, rgba(0,255,136,0.2), rgba(0,255,136,0.08)) !important;
     color: #00ff88 !important;
-    box-shadow: 0 0 30px rgba(0,255,136,0.4), 0 6px 20px rgba(0,255,136,0.25) !important;
-    border: 2px solid rgba(0,255,136,0.6) !important;
-    font-weight: 800 !important;
-    transform: translateY(-2px) !important;
-    font-size: 1.45rem !important;
+    box-shadow: 0 0 16px rgba(0,255,136,0.15) !important;
+    border: 1px solid rgba(0,255,136,0.4) !important;
+    font-weight: 700 !important;
 }
 
-/* Estrella animada en pestaña activa */
-div[data-baseweb="tab"][aria-selected="true"]::before,
-.stTabs button[data-baseweb="tab-selected"]::before {
-    content: '✦' !important;
-    margin-right: 10px !important;
-    color: #00ff88 !important;
-    font-size: 1.1rem !important;
-    animation: pulseTab 2s ease-in-out infinite !important;
-}
-
-@keyframes pulseTab {
-    0%,100% { opacity: 0.6; }
-    50% { opacity: 1; }
-}
-
-/* Iconos dentro de pestañas */
-div[data-baseweb="tab"] svg,
-.stTabs button svg {
-    width: 26px !important;
-    height: 26px !important;
-}
-
-div[data-baseweb="tab"] span,
-.stTabs button span {
-    font-size: 1.35rem !important;
-}
-
-/* Quitar bordes azules viejos de Streamlit */
+/* Quitar bordes azules de Streamlit */
 div[data-baseweb="tab-highlight"] {
     background-color: transparent !important;
     height: 0 !important;
@@ -150,56 +110,66 @@ div[data-baseweb="tab-border"] {
 }
 
 /* ═══════════════════════════════════════ */
-/*  KPIs Y GAUGES MÁS AMPLIOS              */
+/*  DASHBOARD - Más espacioso y estético  */
 /* ═══════════════════════════════════════ */
 
-/* Métricas de Streamlit más grandes */
+/* KPIs más elegantes */
 [data-testid="stMetric"] {
-    background: rgba(20,20,35,0.6) !important;
-    border: 1px solid rgba(255,255,255,0.08) !important;
-    border-radius: 16px !important;
-    padding: 20px 24px !important;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2) !important;
+    background: rgba(20,20,35,0.5) !important;
+    border: 1px solid rgba(255,255,255,0.06) !important;
+    border-radius: 14px !important;
+    padding: 16px 18px !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15) !important;
     transition: all 0.3s ease !important;
 }
 
 [data-testid="stMetric"]:hover {
-    border-color: rgba(0,255,136,0.3) !important;
-    box-shadow: 0 6px 25px rgba(0,255,136,0.15) !important;
+    border-color: rgba(0,255,136,0.25) !important;
+    box-shadow: 0 4px 18px rgba(0,255,136,0.1) !important;
 }
 
 [data-testid="stMetricValue"] {
-    font-size: 2.2rem !important;
+    font-size: 1.6rem !important;
     font-weight: 800 !important;
     background: linear-gradient(135deg, #00ff88, #8be9fd);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    display: block !important;
-    margin: 10px 0 !important;
+    margin: 6px 0 !important;
 }
 
 [data-testid="stMetricLabel"] {
-    font-size: 0.95rem !important;
+    font-size: 0.8rem !important;
     font-weight: 600 !important;
     text-transform: uppercase !important;
-    letter-spacing: 1.5px !important;
+    letter-spacing: 1px !important;
     color: #9ca3af !important;
-    margin-bottom: 8px !important;
+    margin-bottom: 6px !important;
 }
 
-/* Plotly charts más espacio */
+/* Plotly charts con mejor espaciado */
 .stPlotlyChart, .js-plotly-plot {
-    padding: 10px !important;
-    margin: 10px 0 !important;
-    background: rgba(20,20,35,0.4) !important;
-    border-radius: 16px !important;
-    border: 1px solid rgba(255,255,255,0.05) !important;
+    padding: 8px !important;
+    margin: 8px 0 !important;
+    background: rgba(20,20,35,0.3) !important;
+    border-radius: 12px !important;
 }
 
-/* Streamlit columns más espacio */
+/* Columns más espaciadas */
 .stHorizontal {
-    gap: 1.5rem !important;
+    gap: 1rem !important;
+}
+
+/* Sección headers */
+div[data-testid="stHeading"] h1,
+div[data-testid="stHeading"] h2,
+div[data-testid="stHeading"] h3 {
+    margin-top: 0 !important;
+}
+
+/* Selectbox más compactos */
+.stMultiSelect, .stSelectbox {
+    margin-bottom: 8px !important;
 }
 
 /* Ocultar menús de Streamlit */
