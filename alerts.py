@@ -1,5 +1,6 @@
 import smtplib
 import socket
+import ssl
 from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -11,24 +12,57 @@ import ssl
 
 SMTP_TIMEOUT = 30  # Aumentado de 15 a 30 segundos
 
-def _smtp_connect():
-    """Connect to SMTP con SSL directo (puerto 465) o STARTTLS (puerto 587)."""
+SMTP_TIMEOUT = 30
+
+
+def _smtp_connect_for_org(tenant_id=None):
+    """Conexión SMTP para una organización específica (o global si no hay config)"""
+    smtp_server = SMTP_SERVER
+    smtp_port = SMTP_PORT
+    smtp_user = SMTP_USER
+    smtp_password = SMTP_PASSWORD
+    from_name = "CyberFuel AI"
+    from_email = SMTP_USER
+    
+    if tenant_id:
+        try:
+            from db import get_org_email_config
+            config = get_org_email_config(tenant_id)
+            if config:
+                smtp_server = config.get("smtp_server", "smtp.gmail.com")
+                smtp_port = int(config.get("smtp_port", 465))
+                smtp_user = config["smtp_user"]
+                smtp_password = config["smtp_password"]
+                from_name = config.get("from_name", "CyberFuel AI")
+                from_email = config.get("from_email", smtp_user)
+        except Exception as e:
+            print(f"Error cargando SMTP org {tenant_id}: {e}")
+    
     try:
-        # Intentar primero con puerto 465 (SSL directo, más confiable)
-        if SMTP_PORT == 465:
+        if smtp_port == 465:
             context = ssl.create_default_context()
-            server = smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT, timeout=SMTP_TIMEOUT, context=context)
-            server.ehlo()
-            server.login(SMTP_USER, SMTP_PASSWORD)
-            return server
+            server = smtplib.SMTP_SSL(smtp_server, smtp_port, timeout=SMTP_TIMEOUT, context=context)
         else:
-            # Puerto 587 con STARTTLS (lo que ya tenías)
-            server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=SMTP_TIMEOUT)
+            server = smtplib.SMTP(smtp_server, smtp_port, timeout=SMTP_TIMEOUT)
             server.ehlo()
             server.starttls()
-            server.ehlo()
-            server.login(SMTP_USER, SMTP_PASSWORD)
-            return server
+        server.ehlo()
+        server.login(smtp_user, smtp_password)
+        return server, from_name, from_email
+    except smtplib.SMTPAuthenticationError as e:
+        raise Exception(f"Autenticacion fallida. Verifica credenciales SMTP. Detalle: {str(e)}")
+    except socket.timeout:
+        raise Exception(f"Timeout al conectar a {smtp_server}:{smtp_port}. Intenta puerto 465.")
+    except ConnectionRefusedError:
+        raise Exception(f"Conexion rechazada en puerto {smtp_port}. Cambia a 465 en config.")
+    except Exception as e:
+        raise Exception(f"Error SMTP ({smtp_server}:{smtp_port}): {str(e)}")
+
+
+def _smtp_connect():
+    """Función legacy - mantiene compatibilidad"""
+    server, _, _ = _smtp_connect_for_org(None)
+    return server
     except smtplib.SMTPAuthenticationError as e:
         raise Exception(f"Autenticacion fallida. Verifica SMTP_USER y SMTP_PASSWORD. Detalle: {str(e)}")
     except socket.timeout:
