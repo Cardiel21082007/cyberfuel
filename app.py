@@ -53,8 +53,6 @@ st.markdown("""
 /* ═══════════════════════════════════════ */
 /*  PESTAÑAS - Limpieza y elegancia        */
 /* ═══════════════════════════════════════ */
-
-/* Contenedor de las pestañas */
 div[data-baseweb="tab-list"] {
     gap: 4px !important;
     background: #12121a !important;
@@ -62,8 +60,6 @@ div[data-baseweb="tab-list"] {
     padding: 6px !important;
     border: 1px solid rgba(255,255,255,0.08) !important;
 }
-
-/* Cada pestaña individual */
 div[data-baseweb="tab"],
 .stTabs button {
     border-radius: 10px !important;
@@ -79,16 +75,12 @@ div[data-baseweb="tab"],
     line-height: 1.4 !important;
     margin: 2px !important;
 }
-
-/* Hover suave */
 div[data-baseweb="tab"]:hover,
 .stTabs button:hover {
     background: rgba(0,255,136,0.08) !important;
     color: #f8f8f2 !important;
     border: 1px solid rgba(0,255,136,0.2) !important;
 }
-
-/* Pestaña activa */
 div[data-baseweb="tab"][aria-selected="true"],
 .stTabs button[data-baseweb="tab-selected"] {
     background: linear-gradient(135deg, rgba(0,255,136,0.2), rgba(0,255,136,0.08)) !important;
@@ -97,23 +89,14 @@ div[data-baseweb="tab"][aria-selected="true"],
     border: 1px solid rgba(0,255,136,0.4) !important;
     font-weight: 700 !important;
 }
-
-/* Quitar bordes azules de Streamlit */
 div[data-baseweb="tab-highlight"] {
     background-color: transparent !important;
     height: 0 !important;
     display: none !important;
 }
-
 div[data-baseweb="tab-border"] {
     display: none !important;
 }
-
-/* ═══════════════════════════════════════ */
-/*  DASHBOARD - Más espacioso y estético  */
-/* ═══════════════════════════════════════ */
-
-/* KPIs más elegantes */
 [data-testid="stMetric"] {
     background: rgba(20,20,35,0.5) !important;
     border: 1px solid rgba(255,255,255,0.06) !important;
@@ -122,12 +105,10 @@ div[data-baseweb="tab-border"] {
     box-shadow: 0 2px 12px rgba(0,0,0,0.15) !important;
     transition: all 0.3s ease !important;
 }
-
 [data-testid="stMetric"]:hover {
     border-color: rgba(0,255,136,0.25) !important;
     box-shadow: 0 4px 18px rgba(0,255,136,0.1) !important;
 }
-
 [data-testid="stMetricValue"] {
     font-size: 1.6rem !important;
     font-weight: 800 !important;
@@ -137,7 +118,6 @@ div[data-baseweb="tab-border"] {
     background-clip: text;
     margin: 6px 0 !important;
 }
-
 [data-testid="stMetricLabel"] {
     font-size: 0.8rem !important;
     font-weight: 600 !important;
@@ -146,34 +126,24 @@ div[data-baseweb="tab-border"] {
     color: #9ca3af !important;
     margin-bottom: 6px !important;
 }
-
-/* Plotly charts con mejor espaciado */
 .stPlotlyChart, .js-plotly-plot {
     padding: 8px !important;
     margin: 8px 0 !important;
     background: rgba(20,20,35,0.3) !important;
     border-radius: 12px !important;
 }
-
-/* Columns más espaciadas */
 .stHorizontal {
     gap: 1rem !important;
 }
-
-/* Sección headers */
 div[data-testid="stHeading"] h1,
 div[data-testid="stHeading"] h2,
 div[data-testid="stHeading"] h3 {
     margin-top: 0 !important;
 }
-
-/* Selectbox más compactos */
 .stMultiSelect, .stSelectbox {
     margin-bottom: 8px !important;
 }
-
-/* Ocultar menús de Streamlit */
-#MainMenu {visibility: hidden;} 
+#MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
 .stDeployButton {visibility: hidden;}
 </style>
@@ -204,15 +174,6 @@ section[data-testid="stSidebar"]>div{background:transparent!important}
 .stDownloadButton>button:hover{transform:translateY(-2px)!important;box-shadow:0 8px 25px rgba(189,147,249,0.4)!important}
 .stFormSubmitButton>button{background:linear-gradient(135deg,#00ff88,#00cc6a)!important;color:#0a0a0f!important;font-weight:800!important;border-radius:12px!important;border:none!important;padding:12px 32px!important;text-transform:uppercase!important;letter-spacing:1px!important;font-size:0.9rem!important;box-shadow:0 4px 20px rgba(0,255,136,0.35)!important;transition:all 0.3s ease!important}
 .stFormSubmitButton>button:hover{transform:translateY(-2px)!important;box-shadow:0 8px 30px rgba(0,255,136,0.5)!important}
-[data-testid="stMetricValue"]{font-size:1.8rem!important;font-weight:800!important;background:linear-gradient(135deg,#00ff88,#8be9fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-[data-testid="stMetricLabel"]{font-size:0.8rem!important;font-weight:600!important;text-transform:uppercase!important;letter-spacing:1.5px!important;color:var(--text-secondary)!important}
-.stTabs [data-baseweb="tab-list"]{gap:6px!important;background:var(--bg-secondary)!important;border-radius:18px!important;padding:8px!important;border:1px solid var(--border)!important;box-shadow:0 4px 24px rgba(0,0,0,0.3) inset!important}
-.stTabs [data-baseweb="tab"]{border-radius:14px!important;padding:14px 22px!important;font-weight:700!important;font-family:'Inter',sans-serif!important;transition:all 0.4s cubic-bezier(0.4,0,0.2,1)!important;color:var(--text-secondary)!important;font-size:1.05rem!important;letter-spacing:0.3px!important;display:flex!important;align-items:center!important;gap:8px!important}
-.stTabs [data-baseweb="tab"]:hover{background:rgba(0,255,136,0.08)!important;color:#f8f8f2!important;transform:translateY(-1px)!important;box-shadow:0 4px 12px rgba(0,255,136,0.15)!important}
-.stTabs [aria-selected="true"]{background:linear-gradient(135deg,rgba(0,255,136,0.25),rgba(0,255,136,0.1))!important;color:#00ff88!important;box-shadow:0 0 24px rgba(0,255,136,0.2),0 4px 16px rgba(0,255,136,0.15)!important;border:1px solid rgba(0,255,136,0.5)!important;font-weight:800!important;transform:translateY(-2px)!important}
-.stTabs [aria-selected="true"]::before{content:'✦'!important;margin-right:6px!important;color:#00ff88!important;font-size:0.85rem!important;animation:pulse 2s ease-in-out infinite!important}
-@keyframes pulse{0%,100%{opacity:0.6}50%{opacity:1}}
-.stTabs [data-baseweb="tab"] svg{width:22px!important;height:22px!important}
 .stTextInput>div>div>input,.stNumberInput>div>div>input,.stSelectbox>div>div>select,.stTextArea>div>div>textarea{border-radius:10px!important;border:1px solid var(--border)!important;background:rgba(20,20,35,0.6)!important;font-family:'Inter',sans-serif!important;transition:all 0.3s ease!important}
 .stTextInput>div>div>input:focus,.stNumberInput>div>div>input:focus{border-color:rgba(0,255,136,0.5)!important;box-shadow:0 0 15px rgba(0,255,136,0.1)!important}
 .stDataFrame{border-radius:16px!important;border:1px solid var(--border)!important;overflow:hidden}
@@ -345,20 +306,15 @@ def clean_tipo(raw):
     return 'Diesel'
 
 is_admin = rl in ('admin', 'superadmin')
-
-is_admin = rl in ('admin', 'superadmin')
 is_superadmin = rl == 'superadmin'
 
 if is_superadmin:
-    # SuperAdmin: ve TODAS las pestañas incluyendo 🏢 Orgs
     tab_list = ['📊 Dashboard','⛽ Carga','✏️ Editar','📋 Informes','🚨 Alertas','🚛 Flotilla','👤 Conductores','💰 Presupuesto','📥 Masiva','🗺️ Mapa','⚙️ Config','🏢 Orgs']
     tabs = st.tabs(tab_list)
 elif is_admin:
-    # Admin (cliente): NO ve 🏢 Orgs (no puede generar llaves)
     tab_list = ['📊 Dashboard','⛽ Carga','✏️ Editar','📋 Informes','🚨 Alertas','🚛 Flotilla','👤 Conductores','💰 Presupuesto','📥 Masiva','🗺️ Mapa','⚙️ Config']
     tabs = st.tabs(tab_list)
 else:
-    # Despachador: solo 3 pestañas
     tabs = st.tabs(['⛽ Carga','✏️ Editar','📥 Masiva'])
 
 # ━━━ DASHBOARD ━━━
@@ -373,24 +329,20 @@ if is_admin:
             with cf3: es = st.multiselect('📍 Estaciones', df['estacion'].unique(), df['estacion'].unique(), key='de')
             ff = df[(df['vehiculo'].isin(vh)) & (df['tipo_combustible'].isin(tc)) & (df['estacion'].isin(es))].copy()
             ff['fdt'] = pd.to_datetime(ff['fecha'], format='mixed')
-            
             now = datetime.now()
             ff_mes = ff[(ff['fdt'].dt.month == now.month) & (ff['fdt'].dt.year == now.year)]
-            ff_mes_ant = ff[(ff['fdt'].dt.month == (now.month - 1) if now.month > 1 else 12) & (ff['fdt'].dt.year == (now.year if now.month > 1 else now.year - 1))]
-
+            ff_mes_ant = ff[(ff['fdt'].dt.month == (now.month - 1 if now.month > 1 else 12)) & (ff['fdt'].dt.year == (now.year if now.month > 1 else now.year - 1))]
             tg_mes = ff_mes['custo'].sum()
             tg_ant = ff_mes_ant['custo'].sum()
             tl_mes = ff_mes['litros'].sum()
             tl_ant = ff_mes_ant['litros'].sum()
             ar = ff_mes[ff_mes['rendimento'] > 0]['rendimento'].mean()
             anomalias_count = ff_mes[ff_mes['alerta_anomalia'].isin(['ANOMALIA', 'ANOMALIA_AI'])].shape[0]
-
-            # ━━ KPIs EJECUTIVOS CON TENDENCIA ━━
             k1, k2, k3, k4 = st.columns(4)
             with k1:
                 fig_gasto = go.Figure(go.Indicator(mode="number+delta", value=tg_mes, number={'prefix':'$','font':{'size':36}}, delta={'reference':tg_ant, 'relative':True, 'font':{'size':18}}, title={'text':'Gasto Mes Actual','font':{'size':14}}))
                 fig_gasto.update_layout(height=150, margin=dict(t=30,b=0,l=30,r=30), paper_bgcolor='rgba(0,0,0,0)', font={'color':'#f8f8f2'})
-                st.plotly_chart(fig_gasto, width="stretch")
+                st.plotly_chart(fig_gasto, use_container_width=True)
             with k2:
                 fig_litros = go.Figure(go.Indicator(mode="number+delta", value=tl_mes, number={'font':{'size':36},'suffix':' L'}, delta={'reference':tl_ant, 'relative':True, 'font':{'size':18}}, title={'text':'Litros Consumidos','font':{'size':14}}))
                 fig_litros.update_layout(height=150, margin=dict(t=30,b=0,l=30,r=30), paper_bgcolor='rgba(0,0,0,0)', font={'color':'#f8f8f2'})
@@ -404,10 +356,7 @@ if is_admin:
                 fig_anom = go.Figure(go.Indicator(mode="number", value=anomalias_count, number={'font':{'size':36,'color':color_anom}}, title={'text':'Anomalías IA Detectadas','font':{'size':14}}))
                 fig_anom.update_layout(height=150, margin=dict(t=30,b=0,l=30,r=30), paper_bgcolor='rgba(0,0,0,0)')
                 st.plotly_chart(fig_anom, use_container_width=True)
-
             st.markdown('---')
-
-                        # ━━ PREDICCIÓN IA Y RANKINGS ━━
             pr = predecir_gasto(ff)
             r1, r2 = st.columns([1, 1])
             with r1:
@@ -438,7 +387,6 @@ if is_admin:
                             st.markdown(f'<div style="font-size:0.8rem;color:#f8f8f2;">{i+1}. {veh} <span style="color:#ff7979;">({ren:.2f} km/l)</span></div>', unsafe_allow_html=True)
                 else:
                     st.info('Sin datos de rendimiento este mes.')
-
             st.markdown('---')
             presup_df = get_presupuestos(active_tid)
             if not presup_df.empty:
@@ -452,8 +400,6 @@ if is_admin:
                     ppct = (pgasto / plim * 100) if plim > 0 else 0
                     if ppct >= 80:
                         st.warning('⚠️ Presupuesto al ' + str(int(ppct)) + '%: ' + pcat + ' ($' + '{:,.2f}'.format(pgasto) + ' / $' + '{:,.2f}'.format(plim) + ')')
-
-            # ━━ GRÁFICAS ━━
             g1,g2,g3 = st.columns(3)
             with g1:
                 dr = ff[ff['rendimento'] > 0]
@@ -476,6 +422,7 @@ if is_admin:
                     st.plotly_chart(fig_e, use_container_width=True)
         else:
             st.info('📭 Sin datos disponibles — Registra tu primera carga')
+
 # ━━━ CARGA ━━━
 with tabs[1] if is_admin else tabs[0]:
     section_header('⛽', 'Registrar Carga', 'Captura una nueva carga de combustible')
@@ -573,7 +520,7 @@ with tabs[1] if is_admin else tabs[0]:
                             if not na.empty and na.iloc[0].get('activo', 0):
                                 edest = na.iloc[0].get('email', '') or ALERT_EMAIL
                                 if edest:
-                                    enviar_alerta_email(ve.upper(), 'ANOMALIA', f'Rendimiento {r} km/l bajo de lo esperado', costo=cu, rendimiento=r)
+                                    enviar_alerta_email(ve.upper(), 'ANOMALIA', f'Rendimiento {r} km/l bajo de lo esperado', costo=cu, rendimiento=r, tenant_id=active_tid)
                         except: pass
                     if EMAIL_ENABLED:
                         try:
@@ -588,7 +535,7 @@ with tabs[1] if is_admin else tabs[0]:
                                     if not nm2.empty and nm2.iloc[0].get('activo', 0):
                                         edest2 = nm2.iloc[0].get('email', '') or ALERT_EMAIL
                                         if edest2:
-                                            enviar_alerta_mantenimiento(ve.upper(), km, kmin, vrow_n.get('tipo_servicio', ''), email_dest=edest2)
+                                            enviar_alerta_mantenimiento(ve.upper(), km, kmin, vrow_n.get('tipo_servicio', ''), email_dest=edest2, tenant_id=active_tid)
                         except: pass
                     st.session_state.pop('click_lat', None)
                     st.session_state.pop('click_lon', None)
@@ -628,149 +575,103 @@ with tabs[2] if is_admin else tabs[1]:
                 delete_carga(sid, nm)
                 clear_all_cache(); st.toast('🗑️ Eliminada'); st.rerun()
 
-    # ━━━ INFORMES ━━━
-    if is_admin:
-        with tabs[3]:
-            section_header('📋', 'Informes', 'Exporta reportes detallados con filtros personalizados')
-            df = get_data(active_tid)
-            if not df.empty:
-                # ━━ FILTROS DE REPORTE ━━
-                st.markdown("#### 🔍 Filtros de Reporte")
-                
-                # Preparar columna de fecha
-                df['fdt'] = pd.to_datetime(df['fecha'], format='mixed', errors='coerce')
-                
-                # Fila 1 de filtros: Vehículo, Conductor, Tipo, Estación
-                f1, f2, f3, f4 = st.columns(4)
-                
-                with f1:
-                    vehiculos_disp = ['Todos'] + sorted(df['vehiculo'].dropna().unique().tolist())
-                    sel_veh = st.selectbox('🚗 Vehículo', vehiculos_disp, key='filter_veh')
-                
-                with f2:
-                    conductores_disp = ['Todos'] + sorted([c for c in df['conductor'].dropna().unique().tolist() if c])
-                    sel_cond = st.selectbox('👤 Conductor', conductores_disp, key='filter_cond')
-                
-                with f3:
-                    tipos_disp = ['Todos'] + sorted(df['tipo_combustible'].dropna().unique().tolist())
-                    sel_tipo = st.selectbox('⛽ Tipo Combustible', tipos_disp, key='filter_tipo')
-                
-                with f4:
-                    estaciones_disp = ['Todas'] + sorted([e for e in df['estacion'].dropna().unique().tolist() if e])
-                    sel_est = st.selectbox('📍 Estación', estaciones_disp, key='filter_est')
-                
-                # Fila 2 de filtros: Fechas, Alerta, Limpiar
-                f5, f6, f7 = st.columns(3)
-                
-                with f5:
-                    fec_cols = st.columns(2)
-                    with fec_cols[0]:
-                        fecha_min = df['fdt'].min().date() if not df.empty else datetime.today()
-                        fecha_max = df['fdt'].max().date() if not df.empty else datetime.today()
-                        fecha_ini = st.date_input('📅 Desde', fecha_min, key='filter_fec_ini')
-                    with fec_cols[1]:
-                        fecha_fin = st.date_input('📅 Hasta', fecha_max, key='filter_fec_fin')
-                
-                with f6:
-                    alertas_disp = ['Todas', 'Normal', 'ANOMALIA', 'ANOMALIA_AI']
-                    sel_alerta = st.selectbox('🚨 Alerta', alertas_disp, key='filter_alerta')
-                
-                with f7:
-                    st.markdown("<div style='height:23px'></div>", unsafe_allow_html=True)
-                    if st.button('🔄 Limpiar Filtros', use_container_width=True):
-                        st.rerun()
-                
-                # ━━ APLICAR FILTROS ━━
-                df_filtrado = df.copy()
-                
-                if sel_veh != 'Todos':
-                    df_filtrado = df_filtrado[df_filtrado['vehiculo'] == sel_veh]
-                
-                if sel_cond != 'Todos':
-                    df_filtrado = df_filtrado[df_filtrado['conductor'] == sel_cond]
-                
-                if sel_tipo != 'Todos':
-                    df_filtrado = df_filtrado[df_filtrado['tipo_combustible'] == sel_tipo]
-                
-                if sel_est != 'Todas':
-                    df_filtrado = df_filtrado[df_filtrado['estacion'] == sel_est]
-                
-                if sel_alerta != 'Todas':
-                    df_filtrado = df_filtrado[df_filtrado['alerta_anomalia'] == sel_alerta]
-                
-                # Filtro por rango de fechas
-                mask_fec = (df_filtrado['fdt'].dt.date >= fecha_ini) & (df_filtrado['fdt'].dt.date <= fecha_fin)
-                df_filtrado = df_filtrado[mask_fec]
-                
-                # ━━ RESUMEN DE FILTROS APLICADOS ━━
+# ━━━ INFORMES ━━━
+if is_admin:
+    with tabs[3]:
+        section_header('📋', 'Informes', 'Exporta reportes detallados con filtros personalizados')
+        df = get_data(active_tid)
+        if not df.empty:
+            st.markdown("#### 🔍 Filtros de Reporte")
+            df['fdt'] = pd.to_datetime(df['fecha'], format='mixed', errors='coerce')
+            f1, f2, f3, f4 = st.columns(4)
+            with f1:
+                vehiculos_disp = ['Todos'] + sorted(df['vehiculo'].dropna().unique().tolist())
+                sel_veh = st.selectbox('🚗 Vehículo', vehiculos_disp, key='filter_veh')
+            with f2:
+                conductores_disp = ['Todos'] + sorted([c for c in df['conductor'].dropna().unique().tolist() if c])
+                sel_cond = st.selectbox('👤 Conductor', conductores_disp, key='filter_cond')
+            with f3:
+                tipos_disp = ['Todos'] + sorted(df['tipo_combustible'].dropna().unique().tolist())
+                sel_tipo = st.selectbox('⛽ Tipo Combustible', tipos_disp, key='filter_tipo')
+            with f4:
+                estaciones_disp = ['Todas'] + sorted([e for e in df['estacion'].dropna().unique().tolist() if e])
+                sel_est = st.selectbox('📍 Estación', estaciones_disp, key='filter_est')
+            f5, f6, f7 = st.columns(3)
+            with f5:
+                fec_cols = st.columns(2)
+                with fec_cols[0]:
+                    fecha_min = df['fdt'].min().date() if not df.empty else datetime.today()
+                    fecha_ini = st.date_input('📅 Desde', fecha_min, key='filter_fec_ini')
+                with fec_cols[1]:
+                    fecha_max = df['fdt'].max().date() if not df.empty else datetime.today()
+                    fecha_fin = st.date_input('📅 Hasta', fecha_max, key='filter_fec_fin')
+            with f6:
+                alertas_disp = ['Todas', 'Normal', 'ANOMALIA', 'ANOMALIA_AI']
+                sel_alerta = st.selectbox('🚨 Alerta', alertas_disp, key='filter_alerta')
+            with f7:
+                st.markdown("<div style='height:23px'></div>", unsafe_allow_html=True)
+                if st.button('🔄 Limpiar Filtros', use_container_width=True):
+                    st.rerun()
+            df_filtrado = df.copy()
+            if sel_veh != 'Todos':
+                df_filtrado = df_filtrado[df_filtrado['vehiculo'] == sel_veh]
+            if sel_cond != 'Todos':
+                df_filtrado = df_filtrado[df_filtrado['conductor'] == sel_cond]
+            if sel_tipo != 'Todos':
+                df_filtrado = df_filtrado[df_filtrado['tipo_combustible'] == sel_tipo]
+            if sel_est != 'Todas':
+                df_filtrado = df_filtrado[df_filtrado['estacion'] == sel_est]
+            if sel_alerta != 'Todas':
+                df_filtrado = df_filtrado[df_filtrado['alerta_anomalia'] == sel_alerta]
+            mask_fec = (df_filtrado['fdt'].dt.date >= fecha_ini) & (df_filtrado['fdt'].dt.date <= fecha_fin)
+            df_filtrado = df_filtrado[mask_fec]
+            st.markdown("---")
+            filtros_activos = []
+            if sel_veh != 'Todos': filtros_activos.append(f"🚗 {sel_veh}")
+            if sel_cond != 'Todos': filtros_activos.append(f"👤 {sel_cond}")
+            if sel_tipo != 'Todos': filtros_activos.append(f"⛽ {sel_tipo}")
+            if sel_est != 'Todas': filtros_activos.append(f"📍 {sel_est}")
+            if sel_alerta != 'Todas': filtros_activos.append(f"🚨 {sel_alerta}")
+            filtros_activos.append(f"📅 {fecha_ini.strftime('%d/%m/%Y')} - {fecha_fin.strftime('%d/%m/%Y')}")
+            st.markdown(f"**🔍 Filtros activos:** {' · '.join(filtros_activos)}")
+            st.markdown(f"#### 📊 Resultados: {len(df_filtrado)} registros")
+            if not df_filtrado.empty:
+                k1, k2, k3, k4 = st.columns(4)
+                with k1:
+                    total_gasto = df_filtrado['custo'].sum() if 'custo' in df_filtrado.columns else 0
+                    st.metric("💰 Gasto Total", f"${total_gasto:,.2f}")
+                with k2:
+                    total_litros = df_filtrado['litros'].sum() if 'litros' in df_filtrado.columns else 0
+                    st.metric("🛢️ Litros Totales", f"{total_litros:,.1f} L")
+                with k3:
+                    rend_prom = df_filtrado[df_filtrado['rendimento'] > 0]['rendimento'].mean() if 'rendimento' in df_filtrado.columns else 0
+                    st.metric("⚡ Rend. Promedio", f"{rend_prom:.2f} km/l" if not pd.isna(rend_prom) else "N/A")
+                with k4:
+                    n_anomalias = len(df_filtrado[df_filtrado['alerta_anomalia'].isin(['ANOMALIA', 'ANOMALIA_AI'])]) if 'alerta_anomalia' in df_filtrado.columns else 0
+                    st.metric("🚨 Anomalías", n_anomalias)
+                if 'fdt' in df_filtrado.columns:
+                    df_filtrado = df_filtrado.drop(columns=['fdt'])
                 st.markdown("---")
-                filtros_activos = []
-                if sel_veh != 'Todos': filtros_activos.append(f"🚗 {sel_veh}")
-                if sel_cond != 'Todos': filtros_activos.append(f"👤 {sel_cond}")
-                if sel_tipo != 'Todos': filtros_activos.append(f"⛽ {sel_tipo}")
-                if sel_est != 'Todas': filtros_activos.append(f"📍 {sel_est}")
-                if sel_alerta != 'Todas': filtros_activos.append(f"🚨 {sel_alerta}")
-                filtros_activos.append(f"📅 {fecha_ini.strftime('%d/%m/%Y')} - {fecha_fin.strftime('%d/%m/%Y')}")
-                
-                st.markdown(f"**🔍 Filtros activos:** {' · '.join(filtros_activos)}")
-                st.markdown(f"#### 📊 Resultados: {len(df_filtrado)} registros")
-                
-                if not df_filtrado.empty:
-                    # KPIs del filtrado
-                    k1, k2, k3, k4 = st.columns(4)
-                    with k1:
-                        total_gasto = df_filtrado['custo'].sum() if 'custo' in df_filtrado.columns else 0
-                        st.metric("💰 Gasto Total", f"${total_gasto:,.2f}")
-                    with k2:
-                        total_litros = df_filtrado['litros'].sum() if 'litros' in df_filtrado.columns else 0
-                        st.metric("🛢️ Litros Totales", f"{total_litros:,.1f} L")
-                    with k3:
-                        rend_prom = df_filtrado[df_filtrado['rendimento'] > 0]['rendimento'].mean() if 'rendimento' in df_filtrado.columns else 0
-                        st.metric("⚡ Rend. Promedio", f"{rend_prom:.2f} km/l" if not pd.isna(rend_prom) else "N/A")
-                    with k4:
-                        n_anomalias = len(df_filtrado[df_filtrado['alerta_anomalia'].isin(['ANOMALIA', 'ANOMALIA_AI'])]) if 'alerta_anomalia' in df_filtrado.columns else 0
-                        st.metric("🚨 Anomalías", n_anomalias)
-                    
-                    # Quitar columna temporal fdt
-                    if 'fdt' in df_filtrado.columns:
-                        df_filtrado = df_filtrado.drop(columns=['fdt'])
-                    
-                    # Tabla filtrada
-                    st.markdown("---")
-                    show_aggrid(df_filtrado)
-                    
-                    # Botones de exportación
-                    st.markdown('---')
-                    d1, d2 = st.columns(2)
-                    with d1:
-                        st.download_button(
-                            '📊 Descargar EXCEL Filtrado',
-                            generar_excel(df_filtrado, 'Reporte_Filtrado', active_tid),
-                            'Reporte_Filtrado.xlsx',
-                            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                            use_container_width=True
-                        )
-                    with d2:
-                        st.download_button(
-                            '📄 Descargar PDF Filtrado',
-                            generar_pdf(df_filtrado, 'Reporte_Filtrado', active_tid),
-                            'Reporte_Filtrado.pdf',
-                            mime='application/pdf',
-                            use_container_width=True
-                        )
-                else:
-                    st.warning('⚠️ No hay registros que coincidan con los filtros seleccionados. Intenta con otros criterios.')
-                    # Botón para limpiar
-                    if st.button('🔄 Ver todos los registros'):
-                        st.rerun()
+                show_aggrid(df_filtrado)
+                st.markdown('---')
+                d1, d2 = st.columns(2)
+                with d1:
+                    st.download_button('📊 Descargar EXCEL Filtrado', generar_excel(df_filtrado, 'Reporte_Filtrado', active_tid), 'Reporte_Filtrado.xlsx', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', use_container_width=True)
+                with d2:
+                    st.download_button('📄 Descargar PDF Filtrado', generar_pdf(df_filtrado, 'Reporte_Filtrado', active_tid), 'Reporte_Filtrado.pdf', mime='application/pdf', use_container_width=True)
             else:
-                st.info('📭 Sin datos disponibles — Registra tu primera carga')
+                st.warning('⚠️ No hay registros que coincidan con los filtros seleccionados. Intenta con otros criterios.')
+                if st.button('🔄 Ver todos los registros'):
+                    st.rerun()
+        else:
+            st.info('📭 Sin datos disponibles — Registra tu primera carga')
 
+# ━━━ ALERTAS ━━━
+if is_admin:
     with tabs[4]:
         section_header('🚨', 'Alertas IA', 'Anomalías detectadas con diagnóstico y recomendaciones')
         df = get_data(active_tid)
         da = df[df['alerta_anomalia'].isin(['ANOMALIA', 'ANOMALIA_AI'])].copy() if not df.empty else df
-
         if da.empty:
             st.markdown("""
             <div style="background:rgba(0,255,136,0.1);border:2px solid rgba(0,255,136,0.4);border-radius:16px;padding:30px;text-align:center;margin:20px 0;">
@@ -780,10 +681,8 @@ with tabs[2] if is_admin else tabs[1]:
             </div>
             """, unsafe_allow_html=True)
         else:
-            # Resumen de anomalías por tipo
             n_anomalia = len(da[da['alerta_anomalia'] == 'ANOMALIA'])
             n_anomalia_ai = len(da[da['alerta_anomalia'] == 'ANOMALIA_AI'])
-            
             st.markdown(f"""
             <div style="background:linear-gradient(135deg,rgba(255,85,85,0.15),rgba(255,85,85,0.05));border:2px solid rgba(255,85,85,0.4);border-radius:16px;padding:20px;margin:15px 0;">
                 <h3 style="color:#ff5555;margin:0 0 15px 0;text-align:center;">⚠️ {len(da)} anomalía(s) detectada(s)</h3>
@@ -799,18 +698,11 @@ with tabs[2] if is_admin else tabs[1]:
                 </div>
             </div>
             """, unsafe_allow_html=True)
-            
-            # Tabla completa (colapsable)
             with st.expander("📋 Ver tabla completa de anomalías", expanded=False):
                 show_aggrid(da)
-            
             st.markdown("### 🔍 Diagnóstico detallado por anomalía")
             st.markdown("Cada anomalía muestra su descripción y recomendaciones de acción:")
-            
-            # Ordenar por fecha descendente
             da = da.sort_values('fecha', ascending=False) if 'fecha' in da.columns else da
-            
-            # Iterar sobre cada anomalía y mostrar tarjeta
             for idx, row in da.iterrows():
                 tipo = row.get('alerta_anomalia', '')
                 vehiculo = row.get('vehiculo', '')
@@ -821,8 +713,6 @@ with tabs[2] if is_admin else tabs[1]:
                 kilometraje = row.get('kilometraje', 0)
                 rendimento = row.get('rendimento', 0)
                 estacion = row.get('estacion', '') or 'Sin estación'
-                
-                # Determinar severidad y configuración según tipo
                 if tipo == 'ANOMALIA_AI':
                     severidad = '🔴 ALTA'
                     color_sev = '#ff5555'
@@ -836,7 +726,7 @@ with tabs[2] if is_admin else tabs[1]:
                         "🔁 **Revisa cargas múltiples**: Si hubo más de una carga el mismo día del mismo vehículo, investiga.",
                         "📈 **Si es recurrente** (3+ veces en mismo vehículo/conductor): programa revisión mecánica y entrevista al conductor."
                     ]
-                else:  # ANOMALIA (básica)
+                else:
                     severidad = '🟡 MEDIA'
                     color_sev = '#f1fa8c'
                     bg_sev = 'rgba(241,250,140,0.08)'
@@ -849,18 +739,12 @@ with tabs[2] if is_admin else tabs[1]:
                         "🌡️ **Condiciones climáticas**: Clima extremo (frío/calor) puede reducir el rendimiento hasta 10%.",
                         "⏱️ **Si es la PRIMERA anomalía** del vehículo: probablemente es un dato atípico. Monitorea las próximas cargas."
                     ]
-                
-                # Calcular rendimiento esperado (promedio del vehículo)
                 df_veh = df[df['vehiculo'] == vehiculo] if not df.empty else df
                 rend_esperado = df_veh[df_veh['rendimento'] > 0]['rendimento'].mean() if 'rendimento' in df_veh.columns and not df_veh.empty else 0
                 if pd.isna(rend_esperado): rend_esperado = 0
                 dif_rend = ((rendimento - rend_esperado) / rend_esperado * 100) if rend_esperado > 0 else 0
-                
-                # Tarjeta expandible por anomalía
                 expander_title = f"{severidad} | {vehiculo} — {fecha} — Rend: {rendimento:.2f} km/l ({dif_rend:+.1f}%)"
-                
                 with st.expander(expander_title, expanded=False):
-                    # Header con datos principales
                     st.markdown(f"""
                     <div style="background:{bg_sev};border:1px solid {border_sev};border-radius:12px;padding:15px;margin:10px 0;">
                         <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;">
@@ -879,21 +763,15 @@ with tabs[2] if is_admin else tabs[1]:
                         </div>
                     </div>
                     """, unsafe_allow_html=True)
-                    
-                    # Descripción
                     st.markdown(f"#### 📝 ¿Qué significa esta anomalía?")
                     st.markdown(f"""
                     <div style="background:rgba(20,20,35,0.5);border-left:3px solid {color_sev};padding:12px 15px;border-radius:8px;margin:10px 0;">
                         <p style="color:#f8f8f2;margin:0;">{descripcion}</p>
                     </div>
                     """, unsafe_allow_html=True)
-                    
-                    # Recomendaciones
                     st.markdown(f"#### ✅ ¿Qué hacer para remediarlo?")
                     for rec in recomendaciones:
                         st.markdown(f"- {rec}")
-                    
-                    # Comparación con histórico
                     if rend_esperado > 0:
                         st.markdown(f"#### 📊 Análisis comparativo")
                         st.markdown(f"""
@@ -914,8 +792,6 @@ with tabs[2] if is_admin else tabs[1]:
                             </table>
                         </div>
                         """, unsafe_allow_html=True)
-                    
-                    # Acción sugerida rápida
                     st.markdown(f"#### 🎯 Acción inmediata sugerida:")
                     if tipo == 'ANOMALIA_AI':
                         accion = "🔍 **Investiga esta carga en los próximos 3 días**. Habla con el conductor, verifica la ruta en GPS, y confirma con la estación si la carga fue real. Si detectas robo, desactiva temporalmente al conductor y contacta soporte."
@@ -925,9 +801,10 @@ with tabs[2] if is_admin else tabs[1]:
                         accion = "⚠️ **Monitorea las próximas 3 cargas**. Si la anomalía se repite, agenda mantenimiento preventivo. Si es puntual, probablemente fue por condiciones de ruta o captura."
                     else:
                         accion = "✅ **Probablemente es un dato atípico**. Verifica la captura y sigue usando el vehículo normalmente. Monitorea las próximas cargas."
-                    
                     st.info(accion)
 
+# ━━━ FLOTILLA ━━━
+if is_admin:
     with tabs[5]:
         section_header('🚛', 'Flotilla', 'Gestión de vehículos y mantenimiento')
         with st.form('fv'):
@@ -982,8 +859,6 @@ with tabs[2] if is_admin else tabs[1]:
                 with c6:
                     ev_tel = st.text_input('📞 Tel. Operador', vrow.get('tel_operador', '') or '', key='ev_tel')
                     ev_int = st.number_input('🔄 Intervalo (km)', value=float(vrow.get('intervalo_km_servicio', 0) or 0), step=1000.0, key='ev_int')
-                
-                # ━━ NUEVOS CAMPOS: PAPELES VENCIDOS ━━
                 st.markdown('---')
                 st.markdown('**📄 Fechas de Vencimiento (Alertas Automáticas)**')
                 c7,c8,c9 = st.columns(3)
@@ -996,7 +871,6 @@ with tabs[2] if is_admin else tabs[1]:
                 with c9:
                     ev_tar_val = vrow.get('vencimiento_tarjeton', '') or '2099-12-31'
                     ev_tar = st.date_input('📋 Venc. Tarjetón', value=pd.to_datetime(ev_tar_val, errors='coerce') or datetime(2099,12,31), key='ev_tar')
-
                 b1, b2 = st.columns(2)
                 with b1: bupd = st.form_submit_button('✅ ACTUALIZAR VEHÍCULO')
                 with b2: bdel = st.form_submit_button('🗑️ ELIMINAR VEHÍCULO')
@@ -1009,7 +883,8 @@ with tabs[2] if is_admin else tabs[1]:
         else:
             st.info('📭 No hay vehículos registrados')
 
-    # ━━━ CONDUCTORES ━━━
+# ━━━ CONDUCTORES ━━━
+if is_admin:
     with tabs[6]:
         section_header('👤', 'Conductores', 'Gestión de conductores y asignación de vehículos')
         with st.form('f_cond'):
@@ -1029,39 +904,14 @@ with tabs[2] if is_admin else tabs[1]:
             with cc6: cestatus = st.selectbox('📌 Estatus', ['Activo','Inactivo','Vacaciones','Baja'])
             if st.form_submit_button('💾 GUARDAR CONDUCTOR'):
                 if cnombre:
-                    try:
-                        active_tid_save = active_tid if active_tid else 1
-                        nid = insert_conductor(cnombre, clicencia, cvigencia, ctelefono, cveh, cestatus, active_tid_save)
-                        if nid:
-                            clear_all_cache()
-                            st.toast('✅ Conductor guardado!')
-                            st.rerun()
-                        else:
-                            st.error('❌ Error al guardar - DEBUG:')
-                            st.write(f"**Nombre:** {cnombre}")
-                            st.write(f"**Vehículo (cveh):** '{cveh}'")
-                            st.write(f"**Licencia:** '{clicencia}'")
-                            st.write(f"**Vigencia:** '{cvigencia}'")
-                            st.write(f"**Teléfono:** '{ctelefono}'")
-                            st.write(f"**Estatus:** '{cestatus}'")
-                            st.write(f"**Tenant ID:** {active_tid} → usando: {active_tid_save}")
-                            try:
-                                from db import _sb
-                                test = _sb.table("conductores").insert({
-                                    "nombre": cnombre,
-                                    "licencia": clicencia,
-                                    "vigencia_lic": cvigencia,
-                                    "telefono": ctelefono,
-                                    "vehiculo_asignado": cveh,
-                                    "estatus": cestatus,
-                                    "tenant_id": int(active_tid_save)
-                                }).execute()
-                                st.success("✅ Insert directo funcionó!")
-                                st.write(test.data)
-                            except Exception as e:
-                                st.error(f"❌ ERROR REAL DE SUPABASE: {str(e)}")
-                    except Exception as e:
-                        st.error(f"❌ Excepción: {str(e)}")
+                    active_tid_save = active_tid if active_tid else 1
+                    nid = insert_conductor(cnombre, clicencia, cvigencia, ctelefono, cveh, cestatus, active_tid_save)
+                    if nid:
+                        clear_all_cache()
+                        st.toast('✅ Conductor guardado!')
+                        st.rerun()
+                    else:
+                        st.error('❌ Error al guardar. Verifica los datos.')
                 else:
                     st.error('❌ Nombre requerido')
         cdf = get_all_conductores(active_tid)
@@ -1120,11 +970,7 @@ with tabs[2] if is_admin else tabs[1]:
                 with b2: bdel_cond = st.form_submit_button('🗑️ ELIMINAR CONDUCTOR', use_container_width=True)
                 if bupd_cond:
                     if e_cnombre:
-                        from db import update_conductor
-                        if update_conductor(edit_cond_id, tenant_id=active_tid,
-                                            nombre=e_cnombre, licencia=e_clicencia,
-                                            vigencia_lic=e_cvigencia, telefono=e_ctelefono,
-                                            vehiculo_asignado=e_cveh, estatus=e_cestatus):
+                        if update_conductor(edit_cond_id, tenant_id=active_tid, nombre=e_cnombre, licencia=e_clicencia, vigencia_lic=e_cvigencia, telefono=e_ctelefono, vehiculo_asignado=e_cveh, estatus=e_cestatus):
                             clear_all_cache()
                             st.toast('✅ Conductor actualizado!')
                             st.rerun()
@@ -1140,7 +986,8 @@ with tabs[2] if is_admin else tabs[1]:
         else:
             st.info('📭 No hay conductores registrados. Crea uno con el formulario de arriba.')
 
-    # ━━━ PRESUPUESTO ━━━
+# ━━━ PRESUPUESTO ━━━
+if is_admin:
     with tabs[7]:
         section_header('💰', 'Presupuesto', 'Límites de gasto mensual por vehículo y departamento')
         presup_d = get_presupuestos(active_tid)
@@ -1230,6 +1077,8 @@ if is_admin:
                     try: st.map(gps.rename(columns={'latitud':'lat','longitud':'lon'})[['lat','lon']])
                     except: pass
 
+# ━━━ CONFIG ━━━
+if is_admin:
     with tabs[10]:
         section_header('⚙️', 'Configuración', 'Datos de tu empresa')
         cfg = load_config(active_tid)
@@ -1305,7 +1154,7 @@ if is_admin:
                     if len(sub) > 1:
                         fig_p = px.line(sub.sort_values('fdt'), x='fdt', y='precio', color='estacion', title='💲 Precio/L — ' + t, color_discrete_sequence=CC)
                         fig_p.update_layout(template='plotly_dark', font={'family':'Inter'}, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
-                        st.plotly_chart(fig_p, width='stretch')
+                        st.plotly_chart(fig_p, use_container_width=True)
             except: pass
         # Backup
         st.markdown('---')
@@ -1344,11 +1193,6 @@ if is_admin:
         section_header('📬', 'Reportes Automáticos', 'Programa envíos periódicos de reportes por email')
         if not EMAIL_ENABLED:
             st.warning('⚠️ Email no configurado. Configura SMTP en variables de entorno.')
-            st.write("🔍 DEBUG EMAIL_ENABLED:", EMAIL_ENABLED)
-            st.write("🔍 DEBUG SMTP_SERVER:", repr(SMTP_SERVER))
-            st.write("🔍 DEBUG SMTP_USER:", repr(SMTP_USER))
-            st.write("🔍 DEBUG SMTP_PASSWORD:", "***" if SMTP_PASSWORD else "(vacío)")
-            st.write("🔍 DEBUG ALERT_EMAIL:", repr(ALERT_EMAIL))
         else:
             scheduler_on = is_scheduler_running()
             if scheduler_on:
@@ -1403,7 +1247,7 @@ if is_admin:
                         with btn_b:
                             if st.button('📤 Enviar ahora', key='send_' + str(sr['id'])):
                                 from alerts import enviar_reporte_email
-                                ok, msg = enviar_reporte_email(sr)
+                                ok, msg = enviar_reporte_email(sr, tenant_id=active_tid)
                                 if ok: st.toast('✅ Enviado!')
                                 else: st.error(f'❌ {msg}')
                         with btn_c:
@@ -1447,182 +1291,76 @@ if is_admin:
                         save_notification_setting(nt, new_activo, new_email, active_tid)
                         clear_all_cache(); st.toast('✅ Guardado!'); st.rerun()
 
-    if is_superadmin and len(tabs) > 11:
-        with tabs[11]:
-            section_header('🏢', 'Organizaciones', 'Administra organizaciones y usuarios')
-            with st.form('f_new_org'):
+# ━━━ ORGANIZACIONES (SOLO SUPERADMIN) ━━━
+if is_superadmin and len(tabs) > 11:
+    with tabs[11]:
+        section_header('🏢', 'Organizaciones', 'Administra organizaciones y usuarios')
+        with st.form('f_new_org'):
+            c1,c2,c3 = st.columns(3)
+            with c1: on = st.text_input('📝 Nombre*')
+            with c2: orfc = st.text_input('📄 RFC')
+            with c3: oplan = st.selectbox('📦 Plan', ['basic','pro','enterprise'])
+            if st.form_submit_button('➕ CREAR ORG'):
+                if on:
+                    new_id = create_organization(on, orfc, plan=oplan)
+                    if new_id: clear_all_cache(); st.toast('✅ Organización creada!'); st.rerun()
+        orgs = get_all_organizations()
+        if not orgs.empty:
+            show_aggrid(orgs)
+            # ━━━ GENERADOR DE LLAVES DE SUSCRIPCIÓN ━━━
+            st.markdown('---')
+            section_header('🔐', 'Generador de Llaves', 'Crea llaves de suscripción para tus clientes')
+            with st.form('f_gen_key'):
+                k1, k2 = st.columns(2)
+                with k1:
+                    key_plan = st.selectbox('📦 Plan', ['mensual', 'trimestral', 'anual'])
+                with k2:
+                    key_notes = st.text_input('📝 Notas (ej. "Cliente Juan - $499 - 20/10/2025")')
+                if st.form_submit_button('⚡ GENERAR LLAVE'):
+                    duration = {'mensual': 1, 'trimestral': 3, 'anual': 12}.get(key_plan, 1)
+                    new_key, msg = create_subscription_key(key_plan, duration, key_notes)
+                    if new_key:
+                        st.success(f'✅ Llave generada exitosamente!')
+                        st.markdown(f'### 🎉 Tu llave:')
+                        st.code(new_key, language='text')
+                        st.markdown('📋 Cópiala y envíala a tu cliente por WhatsApp')
+                    else:
+                        st.error(f'❌ {msg}')
+            # Mostrar llaves existentes
+            keys_df = get_all_subscription_keys()
+            if not keys_df.empty:
+                st.markdown('#### 📋 Llaves generadas')
+                display_df = keys_df[['key_code', 'plan_type', 'duration_months', 'is_used', 'is_active', 'used_by', 'notes', 'created_at']].copy()
+                display_df.columns = ['Llave', 'Plan', 'Meses', 'Usada', 'Activa', 'Usada por', 'Notas', 'Creada']
+                st.dataframe(display_df, use_container_width=True, hide_index=True)
+                st.markdown('#### 🚫 Desactivar llave robada o cancelada')
+                deact_key = st.text_input('Pega aquí la llave a desactivar:')
+                if st.button('🚫 DESACTIVAR LLAVE') and deact_key:
+                    if deactivate_subscription_key(deact_key.strip()):
+                        clear_all_cache()
+                        st.success(f'✅ Llave {deact_key} desactivada')
+                        st.rerun()
+                    else:
+                        st.error('❌ No se pudo desactivar (revisa que esté bien escrita)')
+            else:
+                st.info('📭 No hay llaves generadas aún. Crea la primera con el formulario de arriba.')
+            st.markdown('---')
+            section_header('👤', 'Crear Usuario', 'Nuevo usuario para una organización')
+            org_list = [str(r['id']) + ': ' + r['nombre'] for _, r in orgs.iterrows()]
+            with st.form('f_org_admin'):
                 c1,c2,c3 = st.columns(3)
-                with c1: on = st.text_input('📝 Nombre*')
-                with c2: orfc = st.text_input('📄 RFC')
-                with c3: oplan = st.selectbox('📦 Plan', ['basic','pro','enterprise'])
-                if st.form_submit_button('➕ CREAR ORG'):
-                    if on:
-                        new_id = create_organization(on, orfc, plan=oplan)
-                        if new_id: clear_all_cache(); st.toast('✅ Organización creada!'); st.rerun()
-            orgs = get_all_organizations()
-            if not orgs.empty:
-                show_aggrid(orgs)
-                # ━━━ GENERADOR DE LLAVES DE SUSCRIPCIÓN ━━━
-                st.markdown('---')
-                section_header('🔐', 'Generador de Llaves', 'Crea llaves de suscripción para tus clientes')
-                
-                with st.form('f_gen_key'):
-                    k1, k2 = st.columns(2)
-                    with k1:
-                        key_plan = st.selectbox('📦 Plan', ['mensual', 'trimestral', 'anual'])
-                    with k2:
-                        key_notes = st.text_input('📝 Notas (ej. "Cliente Juan - $499 - 20/10/2025")')
-                    
-                    if st.form_submit_button('⚡ GENERAR LLAVE'):
-                        duration = {'mensual': 1, 'trimestral': 3, 'anual': 12}.get(key_plan, 1)
-                        new_key, msg = create_subscription_key(key_plan, duration, key_notes)
-                        if new_key:
-                            st.success(f'✅ Llave generada exitosamente!')
-                            st.markdown(f'### 🎉 Tu llave:')
-                            st.code(new_key, language='text')
-                            st.markdown('📋 Cópiala y envíala a tu cliente por WhatsApp')
-                        else:
-                            st.error(f'❌ {msg}')
-                
-                # Mostrar llaves existentes
-                keys_df = get_all_subscription_keys()
-                if not keys_df.empty:
-                    st.markdown('#### 📋 Llaves generadas')
-                    display_df = keys_df[['key_code', 'plan_type', 'duration_months', 'is_used', 'is_active', 'used_by', 'notes', 'created_at']].copy()
-                    display_df.columns = ['Llave', 'Plan', 'Meses', 'Usada', 'Activa', 'Usada por', 'Notas', 'Creada']
-                    st.dataframe(display_df, use_container_width=True, hide_index=True)
-                    
-                    st.markdown('#### 🚫 Desactivar llave robada o cancelada')
-                    deact_key = st.text_input('Pega aquí la llave a desactivar:')
-                    if st.button('🚫 DESACTIVAR LLAVE') and deact_key:
-                        if deactivate_subscription_key(deact_key.strip()):
-                            clear_all_cache()
-                            st.success(f'✅ Llave {deact_key} desactivada')
-                            st.rerun()
-                        else:
-                            st.error('❌ No se pudo desactivar (revisa que esté bien escrita)')
-                else:
-                    st.info('📭 No hay llaves generadas aún. Crea la primera con el formulario de arriba.')
-                
-                st.markdown('---')
-                section_header('👤', 'Crear Usuario', 'Nuevo usuario para una organización')
-                org_list = [str(r['id']) + ': ' + r['nombre'] for _, r in orgs.iterrows()]
-                with st.form('f_org_admin'):
-                    c1,c2,c3 = st.columns(3)
-                    with c1: sel_org = st.selectbox('🏢 Org', org_list, key='sel_org')
-                    with c2: a_user = st.text_input('👤 Usuario'); a_pass = st.text_input('🔑 Password', type='password')
-                    with c3: a_role = st.selectbox('🏷️ Rol', ['admin','despachador'])
-                    if st.form_submit_button('➕ CREAR USUARIO'):
-                        if a_user and a_pass:
-                            org_id = int(sel_org.split(':')[0])
-                            if register_user(a_user, a_pass, tenant_id=org_id, role=a_role): clear_all_cache(); st.toast('✅ Usuario creado!')
-                            else: st.error('❌ Ya existe')
-                st.markdown('---')
-                sel_org2 = st.selectbox('👥 Ver usuarios de:', org_list, key='sel_org2')
-                org_id2 = int(sel_org2.split(':')[0])
-                users_df = get_all_users(tenant_id=org_id2)
-                if not users_df.empty: show_aggrid(users_df)
-            else:
-                st.info('📭 No hay organizaciones registradas. Crea una primero.')
-          
-
-            else:
-                st.info('📭 No hay organizaciones registradas. Crea una primera.')
-          
-
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  SISTEMA DE LLAVES DE SUSCRIPCIÓN
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-import random
-import string
-
-
-def generate_key_code(plan_prefix="MES"):
-    """Genera un código único tipo CYBER-MES-AB12"""
-    letters = ''.join(random.choices(string.ascii_uppercase, k=2))
-    digits = ''.join(random.choices(string.digits, k=2))
-    return f"CYBER-{plan_prefix}-{letters}{digits}"
-
-
-def create_subscription_key(plan_type='mensual', duration_months=1, notes=''):
-    """Crea una nueva llave de suscripción en Supabase"""
-    if not _use_supabase:
-        return None, "Solo disponible en modo Supabase"
-
-    plan_prefix_map = {
-        'mensual': 'MES',
-        'trimestral': 'TRIM',
-        'anual': 'ANO'
-    }
-    plan_prefix = plan_prefix_map.get(plan_type, 'MES')
-
-    # Generar llave única (intentar 5 veces si hay colisión)
-    for _ in range(5):
-        key_code = generate_key_code(plan_prefix)
-        try:
-            r = _sb.table("subscription_keys").insert({
-                "key_code": key_code,
-                "plan_type": plan_type,
-                "duration_months": duration_months,
-                "is_used": False,
-                "is_active": True,
-                "created_at": str(datetime.now()),
-                "notes": notes
-            }).execute()
-            return key_code, "Llave creada exitosamente"
-        except:
-            continue
-    return None, "No se pudo crear la llave"
-
-
-def validate_subscription_key(key_code, username):
-    """Valida y canjea una llave de suscripción"""
-    if not _use_supabase:
-        return False, "Solo disponible en modo Supabase"
-
-    try:
-        r = _sb.table("subscription_keys").select("*").eq("key_code", key_code).execute()
-        if not r.data:
-            return False, "Llave no existe"
-
-        key_data = r.data[0]
-
-        if not key_data.get("is_active", True):
-            return False, "Llave desactivada (contacta soporte)"
-
-        if key_data.get("is_used", False):
-            return False, "Llave ya fue utilizada"
-
-        # Marcar como usada
-        _sb.table("subscription_keys").update({
-            "is_used": True,
-            "used_by": username,
-            "used_date": str(datetime.now())
-        }).eq("key_code", key_code).execute()
-
-        return True, key_data["duration_months"]
-    except Exception as e:
-        return False, f"Error: {str(e)}"
-
-
-def get_all_subscription_keys(only_available=False):
-    """Obtiene todas las llaves (para el panel de administración)"""
-    if not _use_supabase:
-        return pd.DataFrame()
-
-    q = _sb.table("subscription_keys").select("*").order("created_at", desc=True)
-    if only_available:
-        q = q.eq("is_used", False).eq("is_active", True)
-    r = q.execute()
-    return pd.DataFrame(r.data) if r.data else pd.DataFrame()
-
-
-def deactivate_subscription_key(key_code):
-    """Desactiva una llave (si te la roban o quieres cancelar)"""
-    if not _use_supabase:
-        return False
-    try:
-        _sb.table("subscription_keys").update({"is_active": False}).eq("key_code", key_code).execute()
-        return True
-    except:
-        return False
+                with c1: sel_org = st.selectbox('🏢 Org', org_list, key='sel_org')
+                with c2: a_user = st.text_input('👤 Usuario'); a_pass = st.text_input('🔑 Password', type='password')
+                with c3: a_role = st.selectbox('🏷️ Rol', ['admin','despachador'])
+                if st.form_submit_button('➕ CREAR USUARIO'):
+                    if a_user and a_pass:
+                        org_id = int(sel_org.split(':')[0])
+                        if register_user(a_user, a_pass, tenant_id=org_id, role=a_role): clear_all_cache(); st.toast('✅ Usuario creado!')
+                        else: st.error('❌ Ya existe')
+            st.markdown('---')
+            sel_org2 = st.selectbox('👥 Ver usuarios de:', org_list, key='sel_org2')
+            org_id2 = int(sel_org2.split(':')[0])
+            users_df = get_all_users(tenant_id=org_id2)
+            if not users_df.empty: show_aggrid(users_df)
+        else:
+            st.info('📭 No hay organizaciones registradas. Crea una primero.')
