@@ -1526,6 +1526,10 @@ if is_admin:
                 st.info('📭 No hay organizaciones registradas. Crea una primero.')
           
 
+            else:
+                st.info('📭 No hay organizaciones registradas. Crea una primera.')
+          
+
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #  SISTEMA DE LLAVES DE SUSCRIPCIÓN
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
