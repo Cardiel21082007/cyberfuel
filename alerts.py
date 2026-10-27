@@ -6,12 +6,6 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from config import SMTP_SERVER, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, ALERT_EMAIL, EMAIL_ENABLED
 
-SMTP_TIMEOUT = 15
-
-import ssl
-
-SMTP_TIMEOUT = 30  # Aumentado de 15 a 30 segundos
-
 SMTP_TIMEOUT = 30
 
 
@@ -24,6 +18,7 @@ def _smtp_connect_for_org(tenant_id=None):
     from_name = "CyberFuel AI"
     from_email = SMTP_USER
     
+    # Intentar cargar configuración de la organización si hay tenant_id
     if tenant_id:
         try:
             from db import get_org_email_config
@@ -56,40 +51,36 @@ def _smtp_connect_for_org(tenant_id=None):
     except ConnectionRefusedError:
         raise Exception(f"Conexion rechazada en puerto {smtp_port}. Cambia a 465 en config.")
     except Exception as e:
+        # Si falla con 587, intentar con 465 automáticamente
+        if smtp_port != 465:
+            try:
+                context = ssl.create_default_context()
+                server = smtplib.SMTP_SSL(smtp_server, 465, timeout=SMTP_TIMEOUT, context=context)
+                server.ehlo()
+                server.login(smtp_user, smtp_password)
+                return server, from_name, from_email
+            except Exception as e2:
+                raise Exception(f"Error SMTP (587 y 465 fallaron): {str(e)} | {str(e2)}")
         raise Exception(f"Error SMTP ({smtp_server}:{smtp_port}): {str(e)}")
 
 
 def _smtp_connect():
-    """Función legacy - mantiene compatibilidad"""
+    """Función legacy - mantiene compatibilidad con código antiguo"""
     server, _, _ = _smtp_connect_for_org(None)
     return server
-    except smtplib.SMTPAuthenticationError as e:
-        raise Exception(f"Autenticacion fallida. Verifica SMTP_USER y SMTP_PASSWORD. Detalle: {str(e)}")
-    except socket.timeout:
-        raise Exception("Timeout al conectar al servidor SMTP. Intenta con puerto 465 en Secrets.")
-    except ConnectionRefusedError:
-        raise Exception(f"Conexion rechazada en puerto {SMTP_PORT}. Cambia SMTP_PORT a 465 en Secrets.")
-    except Exception as e:
-        # Si falla con 587, intentar con 465 automáticamente
-        if SMTP_PORT != 465:
-            try:
-                context = ssl.create_default_context()
-                server = smtplib.SMTP_SSL(SMTP_SERVER, 465, timeout=SMTP_TIMEOUT, context=context)
-                server.ehlo()
-                server.login(SMTP_USER, SMTP_PASSWORD)
-                return server
-            except Exception as e2:
-                raise Exception(f"Error SMTP (587 y 465 fallaron): {str(e)} | {str(e2)}")
-        raise Exception(f"Error SMTP: {str(e)}")
 
-def enviar_alerta_email(vehiculo, tipo_alerta, detalle, costo=0, rendimiento=0):
+
+def enviar_alerta_email(vehiculo, tipo_alerta, detalle, costo=0, rendimiento=0, tenant_id=None):
     if not EMAIL_ENABLED:
         return False, "Email no configurado"
     try:
+        server, from_name, from_email = _smtp_connect_for_org(tenant_id)
+        
         msg = MIMEMultipart("alternative")
         msg["Subject"] = f"CyberFuel AI | {tipo_alerta} | {vehiculo}"
-        msg["From"] = SMTP_USER
+        msg["From"] = f"{from_name} <{from_email}>"
         msg["To"] = ALERT_EMAIL
+        
         color = "#ff5555" if "ANOMALIA" in tipo_alerta else "#f1fa8c"
         icon = "🚨" if "ANOMALIA" in tipo_alerta else "🔧"
         html = f"""
@@ -105,32 +96,36 @@ def enviar_alerta_email(vehiculo, tipo_alerta, detalle, costo=0, rendimiento=0):
                 <tr><td style="padding:8px;color:#bd93f9;font-weight:bold;">Costo:</td><td>${costo:,.2f}</td></tr>
             </table>
             <hr style="border:1px solid #30363d;">
-            <p style="text-align:center;color:#8b949e;font-size:12px;">CyberFuel AI - Sistema Inteligente de Control</p>
+            <p style="text-align:center;color:#8b949e;font-size:12px;">{from_name} · CyberFuel AI - Sistema Inteligente de Control</p>
         </div>
         </body></html>"""
         text = f"ALERTA CyberFuel AI\nVehiculo: {vehiculo}\nTipo: {tipo_alerta}\nDetalle: {detalle}\nRendimiento: {rendimiento} km/l\nCosto: ${costo:,.2f}"
         msg.attach(MIMEText(text, "plain"))
         msg.attach(MIMEText(html, "html"))
-        server = _smtp_connect()
-        server.sendmail(SMTP_USER, ALERT_EMAIL, msg.as_string())
+        
+        server.sendmail(from_email, ALERT_EMAIL, msg.as_string())
         server.quit()
         return True, "Email enviado"
     except Exception as e:
         return False, str(e)
 
+
 def test_email():
     return enviar_alerta_email("TEST-001", "PRUEBA", "Esto es una prueba de configuracion SMTP")
 
-def enviar_alerta_mantenimiento(placa, km_actual, km_servicio, tipo_servicio, email_dest=None):
+
+def enviar_alerta_mantenimiento(placa, km_actual, km_servicio, tipo_servicio, email_dest=None, tenant_id=None):
     if not EMAIL_ENABLED:
         return False, "Email no configurado"
     dest = email_dest if email_dest else ALERT_EMAIL
     if not dest:
         return False, "Sin destinatario"
     try:
+        server, from_name, from_email = _smtp_connect_for_org(tenant_id)
+        
         msg = MIMEMultipart("alternative")
         msg["Subject"] = f"CyberFuel AI | MANTENIMIENTO VENCIDO | {placa}"
-        msg["From"] = SMTP_USER
+        msg["From"] = f"{from_name} <{from_email}>"
         msg["To"] = dest
         excedente = km_actual - km_servicio
         html = f"""
@@ -146,32 +141,34 @@ def enviar_alerta_mantenimiento(placa, km_actual, km_servicio, tipo_servicio, em
                 <tr><td style="padding:8px;color:#bd93f9;font-weight:bold;">Excedente:</td><td style="color:#ff5555;font-weight:bold;">{excedente:,.0f} km</td></tr>
             </table>
             <hr style="border:1px solid #30363d;">
-            <p style="text-align:center;color:#8b949e;font-size:12px;">CyberFuel AI - Sistema Inteligente de Control</p>
+            <p style="text-align:center;color:#8b949e;font-size:12px;">{from_name} · CyberFuel AI - Sistema Inteligente de Control</p>
         </div>
         </body></html>"""
         text = f"ALERTA MANTENIMIENTO\nVehiculo: {placa}\nKm Actual: {km_actual:,.0f}\nKm Servicio: {km_servicio:,.0f}\nTipo: {tipo_servicio}\nExcedente: {excedente:,.0f} km"
         msg.attach(MIMEText(text, "plain"))
         msg.attach(MIMEText(html, "html"))
-        server = _smtp_connect()
-        server.sendmail(SMTP_USER, dest, msg.as_string())
+        server.sendmail(from_email, dest, msg.as_string())
         server.quit()
         return True, "Alerta enviada"
     except Exception as e:
         return False, str(e)
 
-def enviar_alerta_presupuesto(categoria, gasto, limite, porcentaje, email_dest=None):
+
+def enviar_alerta_presupuesto(categoria, gasto, limite, porcentaje, email_dest=None, tenant_id=None):
     if not EMAIL_ENABLED:
         return False, "Email no configurado"
     dest = email_dest if email_dest else ALERT_EMAIL
     if not dest:
         return False, "Sin destinatario"
     try:
+        server, from_name, from_email = _smtp_connect_for_org(tenant_id)
+        
         msg = MIMEMultipart("alternative")
         nivel = "AL LIMITE" if porcentaje >= 80 and porcentaje < 100 else "EXCEDIDO"
         color = "#f1fa8c" if porcentaje >= 80 and porcentaje < 100 else "#ff5555"
         icon = "⚠️" if porcentaje >= 80 and porcentaje < 100 else "🔴"
         msg["Subject"] = f"CyberFuel AI | PRESUPUESTO {nivel} | {categoria}"
-        msg["From"] = SMTP_USER
+        msg["From"] = f"{from_name} <{from_email}>"
         msg["To"] = dest
         html = f"""
         <html><body style="font-family:Arial,sans-serif;background:#0e1117;color:#fff;padding:20px;">
@@ -185,20 +182,20 @@ def enviar_alerta_presupuesto(categoria, gasto, limite, porcentaje, email_dest=N
                 <tr><td style="padding:8px;color:#bd93f9;font-weight:bold;">Porcentaje:</td><td style="color:{color};font-weight:bold;">{porcentaje:.1f}%</td></tr>
             </table>
             <hr style="border:1px solid #30363d;">
-            <p style="text-align:center;color:#8b949e;font-size:12px;">CyberFuel AI - Sistema Inteligente de Control</p>
+            <p style="text-align:center;color:#8b949e;font-size:12px;">{from_name} · CyberFuel AI - Sistema Inteligente de Control</p>
         </div>
         </body></html>"""
         text = f"ALERTA PRESUPUESTO {nivel}\nCategoria: {categoria}\nGasto: ${gasto:,.2f}\nLimite: ${limite:,.2f}\nPorcentaje: {porcentaje:.1f}%"
         msg.attach(MIMEText(text, "plain"))
         msg.attach(MIMEText(html, "html"))
-        server = _smtp_connect()
-        server.sendmail(SMTP_USER, dest, msg.as_string())
+        server.sendmail(from_email, dest, msg.as_string())
         server.quit()
         return True, "Alerta enviada"
     except Exception as e:
         return False, str(e)
 
-def enviar_reporte_email(schedule):
+
+def enviar_reporte_email(schedule, tenant_id=None):
     """Send a scheduled report via email with Excel/PDF attachments."""
     if not EMAIL_ENABLED:
         return False, "Email no configurado"
@@ -209,7 +206,8 @@ def enviar_reporte_email(schedule):
         from email.mime.base import MIMEBase
         from email import encoders
 
-        tid = int(schedule.get('tenant_id', 1))
+        # Usar tenant_id del schedule si no se proporciona explícitamente
+        tid = tenant_id or int(schedule.get('tenant_id', 1))
         tipo = schedule.get('tipo_reporte', 'completo')
         formato = schedule.get('formato', 'pdf')
         destinatarios = str(schedule.get('destinatarios', '')).strip()
@@ -218,6 +216,9 @@ def enviar_reporte_email(schedule):
         if not destinatarios:
             return False, "Sin destinatarios"
 
+        # Conectar usando SMTP de la organización
+        server, from_name, from_email = _smtp_connect_for_org(tid)
+        
         cfg = load_config(tid)
         empresa = cfg.get('empresa', 'CyberFuel')
         df = get_data(tid)
@@ -241,7 +242,7 @@ def enviar_reporte_email(schedule):
         msg = MIMEMultipart()
         now_str = datetime.now().strftime("%d/%m/%Y %H:%M")
         msg["Subject"] = f"CyberFuel AI | {nombre} | {now_str}"
-        msg["From"] = SMTP_USER
+        msg["From"] = f"{from_name} <{from_email}>"
         msg["To"] = destinatarios
 
         total_gasto = df['custo'].sum() if not df.empty and 'custo' in df.columns else 0
@@ -265,7 +266,7 @@ def enviar_reporte_email(schedule):
             </table>
             <hr style="border:1px solid #30363d;">
             <p style="text-align:center;color:#00ff88;font-size:12px;">✅ Reporte adjunto en este email</p>
-            <p style="text-align:center;color:#8b949e;font-size:11px;">CyberFuel AI — Sistema Inteligente de Control de Combustible</p>
+            <p style="text-align:center;color:#8b949e;font-size:11px;">{from_name} · CyberFuel AI — Sistema Inteligente de Control de Combustible</p>
         </div>
         </body></html>"""
 
@@ -293,8 +294,7 @@ def enviar_reporte_email(schedule):
             msg.attach(part)
 
         recipients = [e.strip() for e in destinatarios.split(',') if e.strip()]
-        server = _smtp_connect()
-        server.sendmail(SMTP_USER, recipients, msg.as_string())
+        server.sendmail(from_email, recipients, msg.as_string())
         server.quit()
 
         return True, "Reporte enviado exitosamente"
