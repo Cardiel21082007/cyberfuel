@@ -1447,8 +1447,8 @@ if is_admin:
                         save_notification_setting(nt, new_activo, new_email, active_tid)
                         clear_all_cache(); st.toast('✅ Guardado!'); st.rerun()
 
-    with tabs[11]:
-        if not is_superadmin:
+    if is_superadmin and len(tabs) > 11:
+        with tabs[11]:
             st.error('🚫 Acceso denegado. Esta sección es exclusiva del SuperAdmin.')
             st.stop()
         section_header('🏢', 'Organizaciones', 'Administra organizaciones y usuarios')
