@@ -1568,3 +1568,49 @@ def deactivate_subscription_key(key_code):
         return True
     except:
         return False
+        
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  CONFIGURACIÓN SMTP POR ORGANIZACIÓN
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+def get_org_email_config(tenant_id):
+    """Obtiene la configuración SMTP de una organización específica"""
+    if not _use_supabase:
+        return None
+    try:
+        tenant_id = int(sanitize_number(tenant_id, 0, 9999))
+        r = _sb.table("email_config").select("*").eq("tenant_id", tenant_id).eq("is_active", True).execute()
+        return r.data[0] if r.data else None
+    except Exception as e:
+        print(f"Error getting org email config: {e}")
+        return None
+
+
+def save_org_email_config(tenant_id, smtp_server, smtp_port, smtp_user, smtp_password, from_name, from_email):
+    """Guarda o actualiza la configuración SMTP de una organización"""
+    if not _use_supabase:
+        return False
+    try:
+        tenant_id = int(sanitize_number(tenant_id, 0, 9999))
+        existing = _sb.table("email_config").select("id").eq("tenant_id", tenant_id).execute()
+        data = {
+            "tenant_id": tenant_id,
+            "smtp_server": smtp_server,
+            "smtp_port": int(smtp_port),
+            "smtp_user": smtp_user,
+            "smtp_password": smtp_password,
+            "from_name": from_name,
+            "from_email": from_email,
+            "is_active": True,
+            "updated_at": str(datetime.now())
+        }
+        if existing.data:
+            _sb.table("email_config").update(data).eq("id", existing.data[0]["id"]).execute()
+        else:
+            data["created_at"] = str(datetime.now())
+            _sb.table("email_config").insert(data).execute()
+        return True
+    except Exception as e:
+        print(f"Error saving org email config: {e}")
+        return False
