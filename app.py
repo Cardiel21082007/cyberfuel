@@ -1452,80 +1452,80 @@ if is_admin:
             st.error('🚫 Acceso denegado. Esta sección es exclusiva del SuperAdmin.')
             st.stop()
         section_header('🏢', 'Organizaciones', 'Administra organizaciones y usuarios')
-            with st.form('f_new_org'):
-                c1,c2,c3 = st.columns(3)
-                with c1: on = st.text_input('📝 Nombre*')
-                with c2: orfc = st.text_input('📄 RFC')
-                with c3: oplan = st.selectbox('📦 Plan', ['basic','pro','enterprise'])
-                if st.form_submit_button('➕ CREAR ORG'):
-                    if on:
-                        new_id = create_organization(on, orfc, plan=oplan)
-                        if new_id: clear_all_cache(); st.toast('✅ Organización creada!'); st.rerun()
-            orgs = get_all_organizations()
-            if not orgs.empty:
-                show_aggrid(orgs)
-                # ━━━ GENERADOR DE LLAVES DE SUSCRIPCIÓN ━━━
-                st.markdown('---')
-                section_header('🔐', 'Generador de Llaves', 'Crea llaves de suscripción para tus clientes')
+        with st.form('f_new_org'):
+            c1,c2,c3 = st.columns(3)
+            with c1: on = st.text_input('📝 Nombre*')
+            with c2: orfc = st.text_input('📄 RFC')
+            with c3: oplan = st.selectbox('📦 Plan', ['basic','pro','enterprise'])
+            if st.form_submit_button('➕ CREAR ORG'):
+                if on:
+                    new_id = create_organization(on, orfc, plan=oplan)
+                    if new_id: clear_all_cache(); st.toast('✅ Organización creada!'); st.rerun()
+        orgs = get_all_organizations()
+        if not orgs.empty:
+            show_aggrid(orgs)
+            # ━━━ GENERADOR DE LLAVES DE SUSCRIPCIÓN ━━━
+            st.markdown('---')
+            section_header('🔐', 'Generador de Llaves', 'Crea llaves de suscripción para tus clientes')
+            
+            with st.form('f_gen_key'):
+                k1, k2 = st.columns(2)
+                with k1:
+                    key_plan = st.selectbox('📦 Plan', ['mensual', 'trimestral', 'anual'])
+                with k2:
+                    key_notes = st.text_input('📝 Notas (ej. "Cliente Juan - $499 - 20/10/2025")')
                 
-                with st.form('f_gen_key'):
-                    k1, k2 = st.columns(2)
-                    with k1:
-                        key_plan = st.selectbox('📦 Plan', ['mensual', 'trimestral', 'anual'])
-                    with k2:
-                        key_notes = st.text_input('📝 Notas (ej. "Cliente Juan - $499 - 20/10/2025")')
-                    
-                    if st.form_submit_button('⚡ GENERAR LLAVE'):
-                        duration = {'mensual': 1, 'trimestral': 3, 'anual': 12}.get(key_plan, 1)
-                        new_key, msg = create_subscription_key(key_plan, duration, key_notes)
-                        if new_key:
-                            st.success(f'✅ Llave generada exitosamente!')
-                            st.markdown(f'### 🎉 Tu llave:')
-                            st.code(new_key, language='text')
-                            st.markdown('📋 Cópiala y envíala a tu cliente por WhatsApp')
-                        else:
-                            st.error(f'❌ {msg}')
+                if st.form_submit_button('⚡ GENERAR LLAVE'):
+                    duration = {'mensual': 1, 'trimestral': 3, 'anual': 12}.get(key_plan, 1)
+                    new_key, msg = create_subscription_key(key_plan, duration, key_notes)
+                    if new_key:
+                        st.success(f'✅ Llave generada exitosamente!')
+                        st.markdown(f'### 🎉 Tu llave:')
+                        st.code(new_key, language='text')
+                        st.markdown('📋 Cópiala y envíala a tu cliente por WhatsApp')
+                    else:
+                        st.error(f'❌ {msg}')
+            
+            # Mostrar llaves existentes
+            keys_df = get_all_subscription_keys()
+            if not keys_df.empty:
+                st.markdown('#### 📋 Llaves generadas')
+                display_df = keys_df[['key_code', 'plan_type', 'duration_months', 'is_used', 'is_active', 'used_by', 'notes', 'created_at']].copy()
+                display_df.columns = ['Llave', 'Plan', 'Meses', 'Usada', 'Activa', 'Usada por', 'Notas', 'Creada']
+                st.dataframe(display_df, use_container_width=True, hide_index=True)
                 
-                # Mostrar llaves existentes
-                keys_df = get_all_subscription_keys()
-                if not keys_df.empty:
-                    st.markdown('#### 📋 Llaves generadas')
-                    display_df = keys_df[['key_code', 'plan_type', 'duration_months', 'is_used', 'is_active', 'used_by', 'notes', 'created_at']].copy()
-                    display_df.columns = ['Llave', 'Plan', 'Meses', 'Usada', 'Activa', 'Usada por', 'Notas', 'Creada']
-                    st.dataframe(display_df, use_container_width=True, hide_index=True)
-                    
-                    st.markdown('#### 🚫 Desactivar llave robada o cancelada')
-                    deact_key = st.text_input('Pega aquí la llave a desactivar:')
-                    if st.button('🚫 DESACTIVAR LLAVE') and deact_key:
-                        if deactivate_subscription_key(deact_key.strip()):
-                            clear_all_cache()
-                            st.success(f'✅ Llave {deact_key} desactivada')
-                            st.rerun()
-                        else:
-                            st.error('❌ No se pudo desactivar (revisa que esté bien escrita)')
-                else:
-                    st.info('📭 No hay llaves generadas aún. Crea la primera con el formulario de arriba.')
-                
-                st.markdown('---')
-                section_header('👤', 'Crear Usuario', 'Nuevo usuario para una organización')
-                org_list = [str(r['id']) + ': ' + r['nombre'] for _, r in orgs.iterrows()]
-                with st.form('f_org_admin'):
-                    c1,c2,c3 = st.columns(3)
-                    with c1: sel_org = st.selectbox('🏢 Org', org_list, key='sel_org')
-                    with c2: a_user = st.text_input('👤 Usuario'); a_pass = st.text_input('🔑 Password', type='password')
-                    with c3: a_role = st.selectbox('🏷️ Rol', ['admin','despachador'])
-                    if st.form_submit_button('➕ CREAR USUARIO'):
-                        if a_user and a_pass:
-                            org_id = int(sel_org.split(':')[0])
-                            if register_user(a_user, a_pass, tenant_id=org_id, role=a_role): clear_all_cache(); st.toast('✅ Usuario creado!')
-                            else: st.error('❌ Ya existe')
-                st.markdown('---')
-                sel_org2 = st.selectbox('👥 Ver usuarios de:', org_list, key='sel_org2')
-                org_id2 = int(sel_org2.split(':')[0])
-                users_df = get_all_users(tenant_id=org_id2)
-                if not users_df.empty: show_aggrid(users_df)
+                st.markdown('#### 🚫 Desactivar llave robada o cancelada')
+                deact_key = st.text_input('Pega aquí la llave a desactivar:')
+                if st.button('🚫 DESACTIVAR LLAVE') and deact_key:
+                    if deactivate_subscription_key(deact_key.strip()):
+                        clear_all_cache()
+                        st.success(f'✅ Llave {deact_key} desactivada')
+                        st.rerun()
+                    else:
+                        st.error('❌ No se pudo desactivar (revisa que esté bien escrita)')
             else:
-                st.info('📭 No hay organizaciones registradas. Crea una primero.')
+                st.info('📭 No hay llaves generadas aún. Crea la primera con el formulario de arriba.')
+            
+            st.markdown('---')
+            section_header('👤', 'Crear Usuario', 'Nuevo usuario para una organización')
+            org_list = [str(r['id']) + ': ' + r['nombre'] for _, r in orgs.iterrows()]
+            with st.form('f_org_admin'):
+                c1,c2,c3 = st.columns(3)
+                with c1: sel_org = st.selectbox('🏢 Org', org_list, key='sel_org')
+                with c2: a_user = st.text_input('👤 Usuario'); a_pass = st.text_input('🔑 Password', type='password')
+                with c3: a_role = st.selectbox('🏷️ Rol', ['admin','despachador'])
+                if st.form_submit_button('➕ CREAR USUARIO'):
+                    if a_user and a_pass:
+                        org_id = int(sel_org.split(':')[0])
+                        if register_user(a_user, a_pass, tenant_id=org_id, role=a_role): clear_all_cache(); st.toast('✅ Usuario creado!')
+                        else: st.error('❌ Ya existe')
+            st.markdown('---')
+            sel_org2 = st.selectbox('👥 Ver usuarios de:', org_list, key='sel_org2')
+            org_id2 = int(sel_org2.split(':')[0])
+            users_df = get_all_users(tenant_id=org_id2)
+            if not users_df.empty: show_aggrid(users_df)
+        else:
+            st.info('📭 No hay organizaciones registradas. Crea una primero.')
           
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
