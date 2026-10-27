@@ -348,13 +348,15 @@ is_admin = rl in ('admin', 'superadmin')
 is_superadmin = rl == 'superadmin'
 
 if is_superadmin:
+    # SuperAdmin: ve TODAS las pestañas incluyendo 🏢 Orgs
     tab_list = ['📊 Dashboard','⛽ Carga','✏️ Editar','📋 Informes','🚨 Alertas','🚛 Flotilla','👤 Conductores','💰 Presupuesto','📥 Masiva','🗺️ Mapa','⚙️ Config','🏢 Orgs']
     tabs = st.tabs(tab_list)
 elif is_admin:
-    # Admin (cliente) NO ve la pestaña 🏢 Orgs
+    # Admin (cliente): NO ve 🏢 Orgs
     tab_list = ['📊 Dashboard','⛽ Carga','✏️ Editar','📋 Informes','🚨 Alertas','🚛 Flotilla','👤 Conductores','💰 Presupuesto','📥 Masiva','🗺️ Mapa','⚙️ Config']
     tabs = st.tabs(tab_list)
 else:
+    # Despachador: solo 3 pestañas
     tabs = st.tabs(['⛽ Carga','✏️ Editar','📥 Masiva'])
 
 # ━━━ DASHBOARD ━━━
