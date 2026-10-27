@@ -1447,9 +1447,11 @@ if is_admin:
                         save_notification_setting(nt, new_activo, new_email, active_tid)
                         clear_all_cache(); st.toast('✅ Guardado!'); st.rerun()
 
-        if is_superadmin and len(tabs) > 11:
-        with tabs[11]:
-            section_header('🏢', 'Organizaciones', 'Administra organizaciones y usuarios')
+    with tabs[11]:
+        if not is_superadmin:
+            st.error('🚫 Acceso denegado. Esta sección es exclusiva del SuperAdmin.')
+            st.stop()
+        section_header('🏢', 'Organizaciones', 'Administra organizaciones y usuarios')
             with st.form('f_new_org'):
                 c1,c2,c3 = st.columns(3)
                 with c1: on = st.text_input('📝 Nombre*')
