@@ -345,6 +345,8 @@ def clean_tipo(raw):
     return 'Diesel'
 
 is_admin = rl in ('admin', 'superadmin')
+
+is_admin = rl in ('admin', 'superadmin')
 is_superadmin = rl == 'superadmin'
 
 if is_superadmin:
@@ -352,7 +354,7 @@ if is_superadmin:
     tab_list = ['📊 Dashboard','⛽ Carga','✏️ Editar','📋 Informes','🚨 Alertas','🚛 Flotilla','👤 Conductores','💰 Presupuesto','📥 Masiva','🗺️ Mapa','⚙️ Config','🏢 Orgs']
     tabs = st.tabs(tab_list)
 elif is_admin:
-    # Admin (cliente): NO ve 🏢 Orgs
+    # Admin (cliente): NO ve 🏢 Orgs (no puede generar llaves)
     tab_list = ['📊 Dashboard','⛽ Carga','✏️ Editar','📋 Informes','🚨 Alertas','🚛 Flotilla','👤 Conductores','💰 Presupuesto','📥 Masiva','🗺️ Mapa','⚙️ Config']
     tabs = st.tabs(tab_list)
 else:
