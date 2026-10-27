@@ -7,22 +7,45 @@ from config import SMTP_SERVER, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, ALERT_EMAIL
 
 SMTP_TIMEOUT = 15
 
+import ssl
+
+SMTP_TIMEOUT = 30  # Aumentado de 15 a 30 segundos
+
 def _smtp_connect():
-    """Connect to SMTP with timeout and better error handling."""
+    """Connect to SMTP con SSL directo (puerto 465) o STARTTLS (puerto 587)."""
     try:
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=SMTP_TIMEOUT)
-        server.ehlo()
-        server.starttls()
-        server.ehlo()
-        server.login(SMTP_USER, SMTP_PASSWORD)
-        return server
-    except socket.gaierror:
-        raise Exception(f"No se pudo resolver {SMTP_SERVER}. Verifica tu conexion a internet o cambia SMTP_SERVER en .env a la IP: 74.125.137.109")
+        # Intentar primero con puerto 465 (SSL directo, más confiable)
+        if SMTP_PORT == 465:
+            context = ssl.create_default_context()
+            server = smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT, timeout=SMTP_TIMEOUT, context=context)
+            server.ehlo()
+            server.login(SMTP_USER, SMTP_PASSWORD)
+            return server
+        else:
+            # Puerto 587 con STARTTLS (lo que ya tenías)
+            server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=SMTP_TIMEOUT)
+            server.ehlo()
+            server.starttls()
+            server.ehlo()
+            server.login(SMTP_USER, SMTP_PASSWORD)
+            return server
+    except smtplib.SMTPAuthenticationError as e:
+        raise Exception(f"Autenticacion fallida. Verifica SMTP_USER y SMTP_PASSWORD. Detalle: {str(e)}")
     except socket.timeout:
-        raise Exception("Timeout al conectar al servidor SMTP. Verifica tu conexion o firewall.")
-    except smtplib.SMTPAuthenticationError:
-        raise Exception("Autenticacion fallida. Verifica SMTP_USER y SMTP_PASSWORD en .env")
+        raise Exception("Timeout al conectar al servidor SMTP. Intenta con puerto 465 en Secrets.")
+    except ConnectionRefusedError:
+        raise Exception(f"Conexion rechazada en puerto {SMTP_PORT}. Cambia SMTP_PORT a 465 en Secrets.")
     except Exception as e:
+        # Si falla con 587, intentar con 465 automáticamente
+        if SMTP_PORT != 465:
+            try:
+                context = ssl.create_default_context()
+                server = smtplib.SMTP_SSL(SMTP_SERVER, 465, timeout=SMTP_TIMEOUT, context=context)
+                server.ehlo()
+                server.login(SMTP_USER, SMTP_PASSWORD)
+                return server
+            except Exception as e2:
+                raise Exception(f"Error SMTP (587 y 465 fallaron): {str(e)} | {str(e2)}")
         raise Exception(f"Error SMTP: {str(e)}")
 
 def enviar_alerta_email(vehiculo, tipo_alerta, detalle, costo=0, rendimiento=0):
