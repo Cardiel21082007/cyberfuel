@@ -361,13 +361,103 @@ if is_admin:
             r1, r2 = st.columns([1, 1])
             with r1:
                 if pr:
-                    st.markdown('#### 🤖 IA — Predicción de Gasto Siguiente Mes')
+                    # Card contenedor con estilo premium
+                    st.markdown("""
+                    <div style="background:linear-gradient(135deg,rgba(0,255,136,0.08) 0%,rgba(189,147,249,0.05) 100%);border:1px solid rgba(0,255,136,0.2);border-radius:20px;padding:8px;margin:10px 0;backdrop-filter:blur(10px);">
+                        <div style="text-align:center;padding:10px 0 0 0;">
+                            <span style="font-size:1.5rem;">🤖</span>
+                            <span style="font-size:1.1rem;font-weight:700;background:linear-gradient(135deg,#00ff88,#8be9fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-left:8px;">Predicción IA — Próximo Mes</span>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
                     try:
                         lm = ff.groupby(ff['fdt'].dt.to_period('M'))['custo'].sum().iloc[-1]
-                        fg = go.Figure(go.Indicator(mode='gauge+number+delta', value=pr, number={'prefix':'$','font':{'size':28}}, delta={'reference':lm,'font':{'size':16}}, gauge={'axis':{'range':[None,pr*1.5]},'bar':{'color':'#00ff88'},'steps':[{'range':[0,lm],'color':'rgba(0,255,136,0.1)'},{'range':[lm,pr*1.5],'color':'rgba(255,85,85,0.1)'}]}))
-                        fg.update_layout(template='plotly_dark', height=220, font={'family':'Inter','color':'#f8f8f2'}, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
+                        # Calcular rango dinámico del gauge
+                        gauge_max = max(pr * 1.5, lm * 1.2, 100000)
+                        pct_change = ((pr - lm) / lm * 100) if lm > 0 else 0
+                        is_increase = pr > lm
+                        
+                        fg = go.Figure(go.Indicator(
+                            mode='gauge+number+delta',
+                            value=pr,
+                            number={
+                                'prefix':'$',
+                                'font':{'size':48, 'color':'#00ff88', 'family':'Inter'},
+                                'valueformat':',.0f'
+                            },
+                            delta={
+                                'reference':lm,
+                                'font':{'size':18, 'family':'Inter'},
+                                'increasing':{'color':'#ff5555', 'symbol':'▲'},
+                                'decreasing':{'color':'#00ff88', 'symbol':'▼'}
+                            },
+                            gauge={
+                                'axis': {
+                                    'range':[None, gauge_max],
+                                    'tickcolor':'#9ca3af',
+                                    'tickfont':{'size':11, 'color':'#9ca3af', 'family':'Inter'},
+                                    'tickformat':'$,.0f',
+                                    'tickwidth':1,
+                                    'showticklabels':True,
+                                    'layer':'above traces'
+                                },
+                                'bar': {
+                                    'color':'#00ff88',
+                                    'thickness':0.35,
+                                    'line':{'color':'#00ff88', 'width':2}
+                                },
+                                'bgcolor':'rgba(20,20,35,0.3)',
+                                'borderwidth':2,
+                                'bordercolor':'rgba(255,255,255,0.08)',
+                                'steps':[
+                                    {'range':[0, lm], 'color':'rgba(0,255,136,0.15)'},
+                                    {'range':[lm, pr], 'color':'rgba(241,250,140,0.15)'},
+                                    {'range':[pr, gauge_max], 'color':'rgba(255,85,85,0.1)'}
+                                ],
+                                'threshold':{
+                                    'line':{'color':'#bd93f9', 'width':3},
+                                    'thickness':0.8,
+                                    'value':lm
+                                }
+                            }
+                        ))
+                        fg.update_layout(
+                            template='plotly_dark',
+                            height=350,
+                            margin=dict(t=40,b=40,l=40,r=40),
+                            font={'family':'Inter','color':'#f8f8f2'},
+                            paper_bgcolor='rgba(0,0,0,0)',
+                            plot_bgcolor='rgba(0,0,0,0)'
+                        )
                         st.plotly_chart(fg, use_container_width=True)
-                    except: pass
+                        
+                        # Información contextual debajo del gauge
+                        col_info1, col_info2, col_info3 = st.columns(3)
+                        with col_info1:
+                            st.markdown(f"""
+                            <div style="text-align:center;padding:10px;background:rgba(20,20,35,0.5);border-radius:10px;border:1px solid rgba(255,255,255,0.05);">
+                                <div style="font-size:0.7rem;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">Mes Actual</div>
+                                <div style="font-size:1.1rem;font-weight:700;color:#8be9fd;margin-top:4px;">${lm:,.0f}</div>
+                            </div>
+                            """, unsafe_allow_html=True)
+                        with col_info2:
+                            color_cambio = '#ff5555' if is_increase else '#00ff88'
+                            icon_cambio = '📈' if is_increase else '📉'
+                            st.markdown(f"""
+                            <div style="text-align:center;padding:10px;background:rgba(20,20,35,0.5);border-radius:10px;border:1px solid rgba(255,255,255,0.05);">
+                                <div style="font-size:0.7rem;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">Cambio</div>
+                                <div style="font-size:1.1rem;font-weight:700;color:{color_cambio};margin-top:4px;">{icon_cambio} {pct_change:+.1f}%</div>
+                            </div>
+                            """, unsafe_allow_html=True)
+                        with col_info3:
+                            st.markdown(f"""
+                            <div style="text-align:center;padding:10px;background:rgba(20,20,35,0.5);border-radius:10px;border:1px solid rgba(255,255,255,0.05);">
+                                <div style="font-size:0.7rem;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">Predicción</div>
+                                <div style="font-size:1.1rem;font-weight:700;color:#00ff88;margin-top:4px;">${pr:,.0f}</div>
+                            </div>
+                            """, unsafe_allow_html=True)
+                    except Exception as e:
+                        st.info('ℹ️ Se necesitan más datos para la predicción IA.')
                 else:
                     st.info('ℹ️ Se necesitan más datos para la predicción IA.')
             with r2:
